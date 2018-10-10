@@ -1,4 +1,4 @@
-namespace Metaheurystyki.Problem
+namespace Metaheuristics.Problem
 {
     public struct Item
     {

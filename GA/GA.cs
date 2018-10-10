@@ -1,6 +1,4 @@
-using Metaheurystyki.Problem;
-
-namespace Metaheurystyki.GA
+namespace Metaheuristics.GA
 {
     public class GA
     {

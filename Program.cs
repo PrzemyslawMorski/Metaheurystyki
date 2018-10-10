@@ -1,10 +1,21 @@
-﻿namespace Metaheurystyki
+﻿using System;
+
+namespace Metaheuristics
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            //TODO
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Please supply an absolute path to the problem's configuration file.");
+            }
+            else
+            {
+                Console.WriteLine($"Supplied argument: {args[0]}");
+                var loadedProblem = Loader.Loader.Load(args[0]);
+                Console.WriteLine("Done reading src file.");
+            }
         }
     }
 }

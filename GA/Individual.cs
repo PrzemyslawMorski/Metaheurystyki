@@ -1,6 +1,6 @@
 using System;
 
-namespace Metaheurystyki.Problem
+namespace Metaheuristics.GA
 {
     public class Individual
     {

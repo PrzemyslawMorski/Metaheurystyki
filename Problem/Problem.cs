@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace Metaheurystyki.Problem
+namespace Metaheuristics.Problem
 {
-    public struct ProblemStats
+    public class ProblemStats
     {
         public int NumCities { get; set; }
         public int NumItems { get; set; }
