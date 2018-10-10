@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Metaheuristics.GA;
@@ -16,15 +17,40 @@ namespace Metaheuristics.Problem
 
     public class Problem
     {
-        public ProblemStats Stats { get; }
-        public List<City> Cities { get; }
-        public List<Item> Items { get; }
+        private ProblemStats Stats { get; }
+        private List<int> CityIds { get; }
+        private List<Tuple<int, int, double>> InterCityDistances { get; }
+        private List<Item> Items { get; }
 
-        public Problem(ProblemStats stats, List<City> cities, List<Item> items)
+        public Problem(ProblemStats stats, IReadOnlyCollection<City> cities, List<Item> items)
         {
             Stats = stats;
-            Cities = cities;
+            CityIds = cities.Select(city => city.Id).ToList();
+            InterCityDistances = BuildInterCityDistances(cities);
             Items = items;
+        }
+
+        public Problem(ProblemStats stats, List<int> cityIds, List<Tuple<int, int, double>> interCityDistances,
+            List<Item> items)
+        {
+            Stats = stats;
+            CityIds = cityIds;
+            InterCityDistances = interCityDistances;
+            Items = items;
+        }
+
+        private double InterCityDistance(int city1Id, int city2Id)
+        {
+            return InterCityDistances.Find(interCityDistance =>
+                interCityDistance.Item1 == city1Id && interCityDistance.Item2 == city2Id).Item3;
+        }
+
+        private static List<Tuple<int, int, double>> BuildInterCityDistances(IReadOnlyCollection<City> cities)
+        {
+            return (from city in cities
+                from otherCity in cities
+                where city.Id != otherCity.Id
+                select new Tuple<int, int, double>(city.Id, otherCity.Id, City.Distance(city, otherCity))).ToList();
         }
 
         public double FitnessTT1(Individual indiv)
@@ -52,14 +78,12 @@ namespace Metaheuristics.Problem
 
             for (var i = 0; i < indiv.RoadTaken.Count; i++)
             {
-                var currentCity = Cities.Find(city => city.Id == indiv.RoadTaken[i]);
+                var currentCityId = indiv.RoadTaken[i];
 
                 var lastCityOnTheRoad = i + 1 == indiv.RoadTaken.Count;
-                
                 var nextCityId = lastCityOnTheRoad ? indiv.RoadTaken[0] : indiv.RoadTaken[i + 1];
-                var nextCity = Cities.Find(city => city.Id == nextCityId);
-                
-                var itemsPickedUpInCurrentCity = itemsPickedUp.Where(item => item.AssignedCityId == currentCity.Id);
+
+                var itemsPickedUpInCurrentCity = itemsPickedUp.Where(item => item.AssignedCityId == currentCityId);
 
                 //PICK UP
                 currentKnapsackWeight = itemsPickedUpInCurrentCity
@@ -68,8 +92,9 @@ namespace Metaheuristics.Problem
                 //TRAVEL
                 var speed = Stats.MaxSpeed -
                             currentKnapsackWeight * ((Stats.MaxSpeed - Stats.MinSpeed) / Stats.KnapsackCapacity);
-                var travelTime = City.Distance(currentCity, nextCity) / speed;
-                
+                var distance = InterCityDistance(currentCityId, nextCityId);
+                var travelTime = distance / speed;
+
                 totalTravelTime += travelTime;
             }
 

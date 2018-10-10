@@ -18,7 +18,7 @@ namespace Metaheuristics.GA
             ItemsTaken[1] == false when item with Id 2 wasn't picked up in it's assigned city
             ItemsTaken is always the size of ProblemStats.NumItems
         */
-        public Dictionary<int, bool> ItemsTaken { get; private set; }
+        public Dictionary<int, bool> ItemsTaken { get; set; }
 
         public Individual DeepCopy()
         {
