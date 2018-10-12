@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Metaheuristics.GA;
 using Metaheuristics.Problem;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Xunit;
 
 namespace Tests
@@ -57,16 +56,17 @@ namespace Tests
 
             var individual = new Individual
             {
-                RoadTaken = new List<int> {1, 3, 2, 4},
-                ItemsTaken = new Dictionary<int, bool>
-                {
-                    {1, false},
-                    {2, true},
-                    {3, false},
-                    {4, true},
-                    {5, false},
-                    {6, false}
-                }
+                RoadTaken = new List<int> {1, 3, 2, 4}
+            };
+
+            var itemsTaken = new Dictionary<int, bool>
+            {
+                {1, false},
+                {2, true},
+                {3, false},
+                {4, true},
+                {5, false},
+                {6, false}
             };
 
             Assert.Equal(-73.14, Math.Round(program.FitnessTT1(individual), 2));

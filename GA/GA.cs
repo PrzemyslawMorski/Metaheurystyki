@@ -5,11 +5,13 @@ namespace Metaheuristics.GA
 {
     public class GaParameters
     {
+        public int PopulationSize { get; }
         public double MutationProbability { get; }
         public double CrossProbability { get; }
 
-        public GaParameters(double mutationProbability, double crossProbability)
+        public GaParameters(int populationSize, double mutationProbability, double crossProbability)
         {
+            PopulationSize = populationSize;
             MutationProbability = mutationProbability;
             CrossProbability = crossProbability;
         }
@@ -21,6 +23,7 @@ namespace Metaheuristics.GA
         private GaParameters Parameters { get; }
         private Random RandomNumGenerator { get; }
 
+
         public Ga(Problem.Problem problem, GaParameters parameters)
         {
             Problem = problem;
@@ -28,7 +31,13 @@ namespace Metaheuristics.GA
             RandomNumGenerator = new Random();
         }
 
-        private Individual[] Selection(List<Individual> currentPopulation)
+        private List<Individual> InitializePopulation()
+        {
+            //TODO
+            return null;
+        }
+
+        private List<Individual> Selection(List<Individual> currentPopulation)
         {
             //TODO
             return null;
@@ -44,26 +53,49 @@ namespace Metaheuristics.GA
             return RandomNumGenerator.NextDouble() <= Parameters.CrossProbability;
         }
 
-        public Individual Mutate(Individual indiv)
+        private Individual Mutate(Individual indiv)
         {
-            if (ShouldMutate())
+            for (var geneIndex = 0; geneIndex < indiv.RoadTaken.Count; geneIndex++)
             {
-                //TODO MUTATION
+                if (ShouldMutate())
+                {
+                    MutateSwap(indiv.RoadTaken, geneIndex);
+                }
             }
 
             return indiv;
         }
 
-        public Tuple<Individual, Individual> Cross(Individual indiv1, Individual indiv2)
+        private void MutateSwap(IList<int> roadTaken, int geneIndex)
         {
-            if (!ShouldCross()) return new Tuple<Individual, Individual>(indiv1, indiv2);
+            var randomSwapIndex = RandomNumGenerator.Next(0, roadTaken.Count);
+            while (randomSwapIndex == geneIndex)
+            {
+                randomSwapIndex = RandomNumGenerator.Next(0, roadTaken.Count);
+            }
 
+            var tmp = roadTaken[geneIndex];
+            roadTaken[geneIndex] = roadTaken[randomSwapIndex];
+            roadTaken[randomSwapIndex] = tmp;
+        }
+
+        private Tuple<Individual, Individual> Cross(Individual indiv1, Individual indiv2)
+        {
             var indiv1Child = indiv1.DeepCopy();
             var indiv2Child = indiv2.DeepCopy();
+            var crossedIndivs = new Tuple<Individual, Individual>(indiv1Child, indiv2Child);
+            
+            if (ShouldCross())
+            {
+                CrossPmx(indiv1Child, indiv2Child);
+            }
+            
+            return crossedIndivs;
+        }
 
+        private static void CrossPmx(Individual indiv1, Individual indiv2)
+        {
             //TODO CROSSING
-
-            return new Tuple<Individual, Individual>(indiv1, indiv2);
         }
     }
 }

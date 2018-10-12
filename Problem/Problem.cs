@@ -55,26 +55,25 @@ namespace Metaheuristics.Problem
 
         public double FitnessTT1(Individual indiv)
         {
-            return ItemsProfitTT1(indiv) - Stats.KnapsackRentingRatio * TravelTimeTT1(indiv);
+            var itemsTaken = GreedyKnp(indiv);
+            return ItemsProfitTT1(itemsTaken) - Stats.KnapsackRentingRatio * TravelTimeTT1(indiv, itemsTaken);
         }
 
-        public double FitnessTT2(Individual indiv)
+        private static List<Item> GreedyKnp(Individual indiv)
         {
             //TODO
-            return 0d;
+            return new List<Item>();
         }
 
-        private double ItemsProfitTT1(Individual indiv)
+        private static double ItemsProfitTT1(IEnumerable<Item> itemsTaken)
         {
-            var itemsOfThisIndiv = Items.Where(item => indiv.ItemsTaken[item.Id]);
-            return itemsOfThisIndiv.Sum(item => item.Profit);
+            return itemsTaken.Sum(item => item.Profit);
         }
 
-        private double TravelTimeTT1(Individual indiv)
+        private double TravelTimeTT1(Individual indiv, List<Item> itemsTaken)
         {
             var totalTravelTime = 0d;
             var currentKnapsackWeight = 0d;
-            var itemsPickedUp = Items.Where(item => indiv.ItemsTaken[item.Id]).ToArray();
 
             for (var i = 0; i < indiv.RoadTaken.Count; i++)
             {
@@ -83,7 +82,7 @@ namespace Metaheuristics.Problem
                 var lastCityOnTheRoad = i + 1 == indiv.RoadTaken.Count;
                 var nextCityId = lastCityOnTheRoad ? indiv.RoadTaken[0] : indiv.RoadTaken[i + 1];
 
-                var itemsPickedUpInCurrentCity = itemsPickedUp.Where(item => item.AssignedCityId == currentCityId);
+                var itemsPickedUpInCurrentCity = itemsTaken.Where(item => item.AssignedCityId == currentCityId);
 
                 //PICK UP
                 currentKnapsackWeight = itemsPickedUpInCurrentCity
