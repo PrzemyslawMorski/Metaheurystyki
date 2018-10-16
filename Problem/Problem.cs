@@ -17,10 +17,10 @@ namespace Metaheuristics.Problem
 
     public class Problem
     {
-        private ProblemStats Stats { get; }
-        private List<int> CityIds { get; }
-        private List<Tuple<int, int, double>> InterCityDistances { get; }
-        private List<Item> Items { get; }
+        public ProblemStats Stats { get; }
+        public List<int> CityIds { get; }
+        public List<Tuple<int, int, double>> InterCityDistances { get; }
+        public List<Item> Items { get; }
 
         public Problem(ProblemStats stats, IReadOnlyCollection<City> cities, List<Item> items)
         {

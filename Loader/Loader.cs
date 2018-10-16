@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Metaheuristics.GA;
 using Metaheuristics.Problem;
 
 namespace Metaheuristics.Loader
@@ -17,9 +18,21 @@ namespace Metaheuristics.Loader
         private const string CitiesOpeningLineFormat = "NODE_COORD_SECTION	(INDEX, X, Y):";
         private const string ItemsOpeningLineFormat = "ITEMS SECTION	(INDEX, PROFIT, WEIGHT, ASSIGNED NODE NUMBER):";
 
-        public static Problem.Problem Load(string srcFilePath)
+        private const string NumAlgorithmIterationsPrefix = "NUMBER OF ITERATIONS:";
+        private const string PopulationSizePrefix = "POPULATION SIZE:";
+        private const string NumGenerationsPrefix = "NUMBER OF GENERATIONS:";
+        private const string MutationProbabilityPrefix = "MUTATION PROBABILITY:";
+        private const string CrossProbabilityPrefix = "CROSSING PROBABILITY:";
+        private const string TournamentSizePrefix = "TOURNAMENT SIZE:";
+
+        public static Problem.Problem LoadProblem(string srcFilePath)
         {
-            Console.WriteLine($"Loading file from path {srcFilePath}");
+            return ExtractProblem(LoadSrcFileLines(srcFilePath));
+        }
+
+        public static List<string> LoadSrcFileLines(string srcFilePath)
+        {
+            Console.WriteLine($"Reading lines from {srcFilePath}");
 
             var srcFileLines = new List<string>();
             try
@@ -43,7 +56,77 @@ namespace Metaheuristics.Loader
                 return null;
             }
 
-            return ExtractProblem(srcFileLines);
+            return srcFileLines;
+        }
+
+        public static GA.GaParameters LoadAlgorithm(string srcFilePath)
+        {
+            return ExtractAlgorithmParameters(LoadSrcFileLines(srcFilePath));
+        }
+
+        private static GaParameters ExtractAlgorithmParameters(List<string> srcFileLines)
+        {
+            try
+            {
+                var numAlgorithmIterationsLine = srcFileLines.Find(line => line.StartsWith(NumAlgorithmIterationsPrefix));
+                var populationSizeLine = srcFileLines.Find(line => line.StartsWith(PopulationSizePrefix));
+                var numGenerationsLine = srcFileLines.Find(line => line.StartsWith(NumGenerationsPrefix));
+                var mutationProbabilityLine = srcFileLines.Find(line => line.StartsWith(MutationProbabilityPrefix));
+                var crossProbabilityLine = srcFileLines.Find(line => line.StartsWith(CrossProbabilityPrefix));
+                var tournamentSizeLine = srcFileLines.Find(line => line.StartsWith(TournamentSizePrefix));
+
+                if (numAlgorithmIterationsLine == null ||
+                    populationSizeLine == null ||
+                    numGenerationsLine == null ||
+                    mutationProbabilityLine == null ||
+                    crossProbabilityLine == null ||
+                    tournamentSizeLine == null)
+                {
+                    Console.WriteLine($"Src file format error - first 6 lines need to be: " +
+                                      $"\n {NumAlgorithmIterationsPrefix} INT" +
+                                      $"\n {PopulationSizePrefix} INT" +
+                                      $"\n {NumGenerationsPrefix} INT" +
+                                      $"\n {MutationProbabilityPrefix} REAL" +
+                                      $"\n {CrossProbabilityPrefix} REAL" +
+                                      $"\n {TournamentSizePrefix} INT" +
+                                      "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
+                    return null;
+                }
+
+                var numAlgorithmIterations = int.Parse(numAlgorithmIterationsLine.Replace(NumAlgorithmIterationsPrefix, "").Trim());
+                var populationSize = int.Parse(populationSizeLine.Replace(PopulationSizePrefix, "").Trim());
+                var numGenerations = int.Parse(numGenerationsLine.Replace(NumGenerationsPrefix, "").Trim());
+                var mutationProbability = double.Parse(mutationProbabilityLine.Replace(MutationProbabilityPrefix, "").Trim());
+                var crossProbability = double.Parse(crossProbabilityLine.Replace(CrossProbabilityPrefix, "").Trim());
+                var tournamentSize = int.Parse(tournamentSizeLine.Replace(TournamentSizePrefix, "").Trim());
+
+                if (populationSize % 2 != 0)
+                {
+                    populationSize++;
+                }
+
+                return new GaParameters
+                {
+                    NumAlgorithmIterations = numAlgorithmIterations,
+                    PopulationSize = populationSize,
+                    NumGenerations = numGenerations,
+                    MutationProbability = mutationProbability,
+                    CrossProbability = crossProbability,
+                    TournamentSize = tournamentSize
+                };
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Src file format error - first 6 lines need to be: " +
+                                  $"\n {NumAlgorithmIterationsPrefix} INT" +
+                                  $"\n {PopulationSizePrefix} INT" +
+                                  $"\n {NumGenerationsPrefix} INT" +
+                                  $"\n {MutationProbabilityPrefix} REAL" +
+                                  $"\n {CrossProbabilityPrefix} REAL" +
+                                  $"\n {TournamentSizePrefix} INT" +
+                                  "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
+                return null;
+            }
         }
 
         private static Problem.Problem ExtractProblem(List<string> srcFileLines)
