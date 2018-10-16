@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Metaheuristics.GA
 {
@@ -52,7 +50,7 @@ namespace Metaheuristics.GA
             }
         }
 
-        private List<Individual> Evolve(List<Individual> population)
+        private List<Individual> Evolve(IList<Individual> population)
         {
             var selectedIndividuals = SelectForCrossing(population);
             var crossedIndividuals = Cross(selectedIndividuals);
@@ -91,7 +89,7 @@ namespace Metaheuristics.GA
 
         private void EvaluatePopulation(IEnumerable<Individual> population, int generation, Logger.Logger logger)
         {
-            var populationsFitness = population.Select(individual => Problem.FitnessTT1(individual)).ToList();
+            var populationsFitness = population.Select(individual => Problem.FitnessTtp1(individual)).ToList();
 
             var bestFitness = populationsFitness.Max();
             var avgFitness = populationsFitness.Average();
@@ -124,7 +122,7 @@ namespace Metaheuristics.GA
         private Individual TournamentSelect(IList<Individual> population)
         {
             var bestIndiv = population[RandomNumGenerator.Next(0, population.Count)];
-            var bestFitness = Problem.FitnessTT1(bestIndiv);
+            var bestFitness = Problem.FitnessTtp1(bestIndiv);
 
             for (var i = 0; i < Parameters.TournamentSize; i++)
             {
@@ -135,7 +133,7 @@ namespace Metaheuristics.GA
                     randomIndiv = population[RandomNumGenerator.Next(0, population.Count)];
                 }
 
-                var randomIndivFitness = Problem.FitnessTT1(randomIndiv);
+                var randomIndivFitness = Problem.FitnessTtp1(randomIndiv);
 
                 if (randomIndivFitness <= bestFitness) continue;
 
@@ -198,24 +196,16 @@ namespace Metaheuristics.GA
         private IEnumerable<Tuple<Individual, Individual>> Cross(
             IEnumerable<Tuple<Individual, Individual>> individualsToBeCrossed)
         {
-            var crossedIndividuals = new List<Tuple<Individual, Individual>>();
-
-            foreach (var tupleOfIndividuals in individualsToBeCrossed)
-            {
-                CrossIndividuals(tupleOfIndividuals.Item1, tupleOfIndividuals.Item2, out var child1, out var child2);
-                crossedIndividuals.Add(new Tuple<Individual, Individual>(child1, child2));
-            }
-
-            return crossedIndividuals;
+            return individualsToBeCrossed.Select(tupleOfIndividuals => CrossIndividuals(tupleOfIndividuals.Item1, tupleOfIndividuals.Item2)).ToList();
         }
 
-        private void CrossIndividuals(Individual indiv1, Individual indiv2, out Individual indiv1Child,
-            out Individual indiv2Child)
+        private Tuple<Individual, Individual> CrossIndividuals(Individual indiv1, Individual indiv2)
         {
-            indiv1Child = indiv1.DeepCopy();
-            indiv2Child = indiv2.DeepCopy();
+            var indiv1Child = indiv1.DeepCopy();
+            var indiv2Child = indiv2.DeepCopy();
+            var crossedIndividuals = new Tuple<Individual, Individual>(indiv1Child, indiv2Child);
 
-            if (!ShouldCross()) return;
+            if (!ShouldCross()) return crossedIndividuals;
 
             var roadLength = indiv1.RoadTaken.Count;
             var indiv1Road = new List<int>(indiv1.RoadTaken);
@@ -223,6 +213,8 @@ namespace Metaheuristics.GA
 
             CrossPmx(indiv1Child, roadLength, indiv1Road, indiv2Road);
             CrossPmx(indiv2Child, roadLength, indiv2Road, indiv1Road);
+
+            return crossedIndividuals;
         }
 
         private void CrossPmx(Individual indiv, int roadLength, List<int> indiv1Road, List<int> indiv2Road)
@@ -252,7 +244,7 @@ namespace Metaheuristics.GA
             }
 
             var valuesLeftInIndiv2 = indiv2Road.Where(value => !cutValuesFromIndiv1.Contains(value) &&
-                                                                 !cutValuesFromIndiv2.Contains(value)).ToList();
+                                                               !cutValuesFromIndiv2.Contains(value)).ToList();
 
             var indexInIndiv1 = 0;
             foreach (var valueLeftInIndiv2 in valuesLeftInIndiv2)
