@@ -53,10 +53,10 @@ namespace Metaheuristics.Problem
                 select new Tuple<int, int, double>(city.Id, otherCity.Id, City.Distance(city, otherCity))).ToList();
         }
 
-        public double FitnessTT1(Individual indiv)
+        public double FitnessTtp1(Individual indiv)
         {
             var itemsTaken = GreedyKnp(indiv);
-            return ItemsProfitTT1(itemsTaken) - Stats.KnapsackRentingRatio * TravelTimeTT1(indiv, itemsTaken);
+            return ItemsProfitTtp1(itemsTaken) - Stats.KnapsackRentingRatio * TravelTimeTtp1(indiv, itemsTaken);
         }
 
         private static List<Item> GreedyKnp(Individual indiv)
@@ -65,12 +65,12 @@ namespace Metaheuristics.Problem
             return new List<Item>();
         }
 
-        private static double ItemsProfitTT1(IEnumerable<Item> itemsTaken)
+        private static double ItemsProfitTtp1(IEnumerable<Item> itemsTaken)
         {
             return itemsTaken.Sum(item => item.Profit);
         }
 
-        private double TravelTimeTT1(Individual indiv, List<Item> itemsTaken)
+        private double TravelTimeTtp1(Individual indiv, List<Item> itemsTaken)
         {
             var totalTravelTime = 0d;
             var currentKnapsackWeight = 0d;

@@ -69,7 +69,7 @@ namespace Tests
                 {6, false}
             };
 
-            Assert.Equal(-73.14, Math.Round(program.FitnessTT1(individual), 2));
+            Assert.Equal(-73.14, Math.Round(program.FitnessTtp1(individual), 2));
         }
     }
 }
