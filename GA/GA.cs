@@ -6,12 +6,14 @@ namespace Metaheuristics.GA
     public class GaParameters
     {
         public int PopulationSize { get; }
+        public int NumGenerations { get; }
         public double MutationProbability { get; }
         public double CrossProbability { get; }
 
-        public GaParameters(int populationSize, double mutationProbability, double crossProbability)
+        public GaParameters(int populationSize, int numGenerations, double mutationProbability, double crossProbability)
         {
             PopulationSize = populationSize;
+            NumGenerations = numGenerations;
             MutationProbability = mutationProbability;
             CrossProbability = crossProbability;
         }
@@ -31,10 +33,33 @@ namespace Metaheuristics.GA
             RandomNumGenerator = new Random();
         }
 
-        private List<Individual> InitializePopulation()
+        private List<Individual> InitializePopulation(IReadOnlyCollection<int> cityIds)
         {
-            //TODO
-            return null;
+            var population = new List<Individual>();
+            var numCities = cityIds.Count;
+            for (var i = 0; i < Parameters.PopulationSize; i++)
+            {
+                var randomRoadTaken = new List<int>(numCities);
+
+                var mutableListCityIds = new List<int>(cityIds);
+
+                for (var j = 0; j < numCities; j++)
+                {
+                    var randomIndex = RandomNumGenerator.Next(0, mutableListCityIds.Count);
+                    var randomCityId = mutableListCityIds[randomIndex];
+                    mutableListCityIds.RemoveAt(randomIndex);
+                    randomRoadTaken.Add(randomCityId);
+                }
+
+                var individual = new Individual()
+                {
+                    RoadTaken = randomRoadTaken
+                };
+
+                population.Add(individual);
+            }
+
+            return population;
         }
 
         private List<Individual> Selection(List<Individual> currentPopulation)
@@ -55,28 +80,21 @@ namespace Metaheuristics.GA
 
         private Individual Mutate(Individual indiv)
         {
-            for (var geneIndex = 0; geneIndex < indiv.RoadTaken.Count; geneIndex++)
+            if (!ShouldMutate()) return indiv;
+
+            var firstRandomSwapIndex = RandomNumGenerator.Next(0, indiv.RoadTaken.Count);
+            var secondRandomSwapIndex = RandomNumGenerator.Next(0, indiv.RoadTaken.Count);
+
+            while (firstRandomSwapIndex == secondRandomSwapIndex)
             {
-                if (ShouldMutate())
-                {
-                    MutateSwap(indiv.RoadTaken, geneIndex);
-                }
+                secondRandomSwapIndex = RandomNumGenerator.Next(0, indiv.RoadTaken.Count);
             }
+
+            var tmp = indiv.RoadTaken[firstRandomSwapIndex];
+            indiv.RoadTaken[firstRandomSwapIndex] = indiv.RoadTaken[secondRandomSwapIndex];
+            indiv.RoadTaken[secondRandomSwapIndex] = tmp;
 
             return indiv;
-        }
-
-        private void MutateSwap(IList<int> roadTaken, int geneIndex)
-        {
-            var randomSwapIndex = RandomNumGenerator.Next(0, roadTaken.Count);
-            while (randomSwapIndex == geneIndex)
-            {
-                randomSwapIndex = RandomNumGenerator.Next(0, roadTaken.Count);
-            }
-
-            var tmp = roadTaken[geneIndex];
-            roadTaken[geneIndex] = roadTaken[randomSwapIndex];
-            roadTaken[randomSwapIndex] = tmp;
         }
 
         private Tuple<Individual, Individual> Cross(Individual indiv1, Individual indiv2)
@@ -84,12 +102,12 @@ namespace Metaheuristics.GA
             var indiv1Child = indiv1.DeepCopy();
             var indiv2Child = indiv2.DeepCopy();
             var crossedIndivs = new Tuple<Individual, Individual>(indiv1Child, indiv2Child);
-            
+
             if (ShouldCross())
             {
                 CrossPmx(indiv1Child, indiv2Child);
             }
-            
+
             return crossedIndivs;
         }
 
