@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Tests
 {
-    public class TT1
+    public class Ttp1
     {
         [Fact]
         public void Fitness()
@@ -26,20 +26,20 @@ namespace Tests
                 1, 2, 3, 4
             };
 
-            var interCityDistances = new List<Tuple<int, int, double>>
+            var interCityDistances = new Dictionary<Problem.CityCity, double>
             {
-                new Tuple<int, int, double>(1, 2, 5),
-                new Tuple<int, int, double>(1, 3, 6),
-                new Tuple<int, int, double>(1, 4, 6),
-                new Tuple<int, int, double>(2, 1, 5),
-                new Tuple<int, int, double>(2, 3, 6),
-                new Tuple<int, int, double>(2, 4, 6),
-                new Tuple<int, int, double>(3, 1, 6),
-                new Tuple<int, int, double>(3, 2, 5),
-                new Tuple<int, int, double>(3, 4, 4),
-                new Tuple<int, int, double>(4, 1, 6),
-                new Tuple<int, int, double>(4, 2, 6),
-                new Tuple<int, int, double>(4, 3, 4)
+                {new Problem.CityCity(1, 2), 5},
+                {new Problem.CityCity(1, 3), 6},
+                {new Problem.CityCity(1, 4), 6},
+                {new Problem.CityCity(2, 1), 5},
+                {new Problem.CityCity(2, 3), 6},
+                {new Problem.CityCity(2, 4), 6},
+                {new Problem.CityCity(3, 1), 6},
+                {new Problem.CityCity(3, 2), 5},
+                {new Problem.CityCity(3, 4), 4},
+                {new Problem.CityCity(4, 1), 6},
+                {new Problem.CityCity(4, 2), 6},
+                {new Problem.CityCity(4, 3), 4}
             };
 
             var items = new List<Item>
@@ -59,17 +59,13 @@ namespace Tests
                 RoadTaken = new List<int> {1, 3, 2, 4}
             };
 
-            var itemsTaken = new Dictionary<int, bool>
+            var itemsTaken = new List<Item>
             {
-                {1, false},
-                {2, true},
-                {3, false},
-                {4, true},
-                {5, false},
-                {6, false}
+                new Item {Id = 2, Profit = 40, Weight = 1, AssignedCityId = 3},
+                new Item {Id = 4, Profit = 20, Weight = 2, AssignedCityId = 2}
             };
 
-            Assert.Equal(-73.14, Math.Round(program.FitnessTtp1(individual), 2));
+            Assert.Equal(-73.14, Math.Round(program.FitnessTtp1(individual, itemsTaken), 2));
         }
     }
 }

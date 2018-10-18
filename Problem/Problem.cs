@@ -17,9 +17,21 @@ namespace Metaheuristics.Problem
 
     public class Problem
     {
+        public struct CityCity
+        {
+            public int City1Id { get; set; }
+            public int City2Id { get; set; }
+
+            public CityCity(int city1Id, int city2Id)
+            {
+                City1Id = city1Id;
+                City2Id = city2Id;
+            }
+        }
+
         private ProblemStats Stats { get; }
         public List<int> CityIds { get; }
-        private List<Tuple<int, int, double>> InterCityDistances { get; }
+        private Dictionary<CityCity, double> InterCityDistances { get; }
         private List<Item> Items { get; }
         private List<Item> GreedyBestItems { get; }
         private double GreedyBestItemsProfit { get; }
@@ -34,7 +46,7 @@ namespace Metaheuristics.Problem
             GreedyBestItemsProfit = ItemsProfitTtp1(GreedyBestItems);
         }
 
-        public Problem(ProblemStats stats, List<int> cityIds, List<Tuple<int, int, double>> interCityDistances,
+        public Problem(ProblemStats stats, List<int> cityIds, Dictionary<CityCity, double> interCityDistances,
             List<Item> items)
         {
             Stats = stats;
@@ -47,21 +59,36 @@ namespace Metaheuristics.Problem
 
         private double InterCityDistance(int city1Id, int city2Id)
         {
-            return InterCityDistances.Find(interCityDistance =>
-                interCityDistance.Item1 == city1Id && interCityDistance.Item2 == city2Id).Item3;
+            return InterCityDistances[new CityCity {City1Id = city1Id, City2Id = city2Id}];
         }
 
-        private static List<Tuple<int, int, double>> BuildInterCityDistances(IReadOnlyCollection<City> cities)
+        private static Dictionary<CityCity, double> BuildInterCityDistances(IReadOnlyCollection<City> cities)
         {
-            return (from city in cities
+            var cityCityDistance = new Dictionary<CityCity, double>();
+
+            var cityCityDistanceTuples = (from city in cities
                 from otherCity in cities
                 where city.Id != otherCity.Id
                 select new Tuple<int, int, double>(city.Id, otherCity.Id, City.Distance(city, otherCity))).ToList();
+
+            foreach (var cityCityDistanceTuple in cityCityDistanceTuples)
+            {
+                cityCityDistance[
+                        new CityCity {City1Id = cityCityDistanceTuple.Item1, City2Id = cityCityDistanceTuple.Item2}] =
+                    cityCityDistanceTuple.Item3;
+            }
+
+            return cityCityDistance;
         }
 
-        public double FitnessTtp1(Individual indiv)
+        public double FitnessTtp1(Individual indiv, List<Item> itemsTaken = null)
         {
-            return GreedyBestItemsProfit - Stats.KnapsackRentingRatio * TravelTimeTtp1(indiv, GreedyBestItems);
+            if (itemsTaken == null)
+            {
+                return GreedyBestItemsProfit - Stats.KnapsackRentingRatio * TravelTimeTtp1(indiv, GreedyBestItems);
+            }
+
+            return ItemsProfitTtp1(itemsTaken) - Stats.KnapsackRentingRatio * TravelTimeTtp1(indiv, itemsTaken);
         }
 
         private List<Item> GreedyKnp()
@@ -104,10 +131,9 @@ namespace Metaheuristics.Problem
                 var lastCityOnTheRoad = i + 1 == indiv.RoadTaken.Count;
                 var nextCityId = lastCityOnTheRoad ? indiv.RoadTaken[0] : indiv.RoadTaken[i + 1];
 
-                var itemsPickedUpInCurrentCity = itemsTaken.Where(item => item.AssignedCityId == currentCityId);
-
                 //PICK UP
-                currentKnapsackWeight = itemsPickedUpInCurrentCity
+                currentKnapsackWeight = itemsTaken
+                    .Where(item => item.AssignedCityId == currentCityId)
                     .Aggregate(currentKnapsackWeight, (current, item) => current + item.Weight);
 
                 //TRAVEL

@@ -197,8 +197,7 @@ namespace Metaheuristics.GA
             IEnumerable<Tuple<Individual, Individual>> individualsToBeCrossed)
         {
             return individualsToBeCrossed
-                .Select(tupleOfIndividuals => CrossIndividuals(tupleOfIndividuals.Item1, tupleOfIndividuals.Item2))
-                .ToList();
+                .Select(tupleOfIndividuals => CrossIndividuals(tupleOfIndividuals.Item1, tupleOfIndividuals.Item2));
         }
 
         private Tuple<Individual, Individual> CrossIndividuals(Individual indiv1, Individual indiv2)
