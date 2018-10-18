@@ -41,6 +41,8 @@ namespace Metaheuristics.Problem
             CityIds = cityIds;
             InterCityDistances = interCityDistances;
             Items = items;
+            GreedyBestItems = GreedyKnp();
+            GreedyBestItemsProfit = ItemsProfitTtp1(GreedyBestItems);
         }
 
         private double InterCityDistance(int city1Id, int city2Id)
