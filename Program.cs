@@ -46,7 +46,7 @@ namespace Metaheuristics
 
             Console.WriteLine("Done reading problem's src file.");
 
-            var algorithmParams = Loader.Loader.LoadAlgorithm(algorithmSrcFilePath);
+            var algorithmParams = Loader.Loader.LoadAlgorithmParams(algorithmSrcFilePath);
             if (algorithmParams == null)
             {
                 Console.WriteLine("Error reading algorithm's src file.");

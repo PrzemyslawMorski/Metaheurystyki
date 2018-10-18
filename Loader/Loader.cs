@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Metaheuristics.GA;
 using Metaheuristics.Problem;
 
@@ -30,7 +29,7 @@ namespace Metaheuristics.Loader
             return ExtractProblem(LoadSrcFileLines(srcFilePath));
         }
 
-        public static List<string> LoadSrcFileLines(string srcFilePath)
+        private static List<string> LoadSrcFileLines(string srcFilePath)
         {
             Console.WriteLine($"Reading lines from {srcFilePath}");
 
@@ -59,7 +58,7 @@ namespace Metaheuristics.Loader
             return srcFileLines;
         }
 
-        public static GA.GaParameters LoadAlgorithm(string srcFilePath)
+        public static GA.GaParameters LoadAlgorithmParams(string srcFilePath)
         {
             return ExtractAlgorithmParameters(LoadSrcFileLines(srcFilePath));
         }

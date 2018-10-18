@@ -36,7 +36,8 @@ namespace Metaheuristics.GA
                 var population = InitializePopulation(Problem.CityIds).ToList();
 
                 EvaluatePopulation(population, generation, logger);
-
+                generation++;
+                
                 while (generation < Parameters.NumGenerations)
                 {
                     Console.WriteLine($"Iteration {i} Generation {generation}");
@@ -44,7 +45,6 @@ namespace Metaheuristics.GA
                     population = Evolve(population);
 
                     EvaluatePopulation(population, generation, logger);
-
                     generation++;
                 }
             }
