@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  metaheuristics:
+    image: pmorski/metaheuristics
+    volumes:
+      - "./problemInput.ttp:/app/problemInput.ttp"
+      - "./algInput.txt:/app/algInput.txt"
+      - "./output.csv:/app/output.csv"
