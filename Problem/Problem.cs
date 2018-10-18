@@ -17,10 +17,12 @@ namespace Metaheuristics.Problem
 
     public class Problem
     {
-        public ProblemStats Stats { get; }
+        private ProblemStats Stats { get; }
         public List<int> CityIds { get; }
-        public List<Tuple<int, int, double>> InterCityDistances { get; }
-        public List<Item> Items { get; }
+        private List<Tuple<int, int, double>> InterCityDistances { get; }
+        private List<Item> Items { get; }
+        private List<Item> GreedyBestItems { get; }
+        private double GreedyBestItemsProfit { get; }
 
         public Problem(ProblemStats stats, IReadOnlyCollection<City> cities, List<Item> items)
         {
@@ -28,6 +30,8 @@ namespace Metaheuristics.Problem
             CityIds = cities.Select(city => city.Id).ToList();
             InterCityDistances = BuildInterCityDistances(cities);
             Items = items;
+            GreedyBestItems = GreedyKnp();
+            GreedyBestItemsProfit = ItemsProfitTtp1(GreedyBestItems);
         }
 
         public Problem(ProblemStats stats, List<int> cityIds, List<Tuple<int, int, double>> interCityDistances,
@@ -55,15 +59,31 @@ namespace Metaheuristics.Problem
 
         public double FitnessTtp1(Individual indiv)
         {
-            var itemsTaken = GreedyKnp(indiv);
-            return ItemsProfitTtp1(itemsTaken) - Stats.KnapsackRentingRatio * TravelTimeTtp1(indiv, itemsTaken);
+            return GreedyBestItemsProfit - Stats.KnapsackRentingRatio * TravelTimeTtp1(indiv, GreedyBestItems);
         }
 
-        private static List<Item> GreedyKnp(Individual indiv)
+        private List<Item> GreedyKnp()
         {
-            //TODO
-            return new List<Item>();
+            var bestItems = new List<Item>();
+            var currentCapacity = 0;
+
+            var itemsSortedByGreedyCriterium = new List<Item>(Items);
+            itemsSortedByGreedyCriterium.Sort();
+
+            foreach (var item in itemsSortedByGreedyCriterium)
+            {
+                if (currentCapacity + item.Weight > Stats.KnapsackCapacity)
+                {
+                    continue;
+                }
+
+                bestItems.Add(item);
+                currentCapacity += item.Weight;
+            }
+
+            return bestItems;
         }
+
 
         private static double ItemsProfitTtp1(IEnumerable<Item> itemsTaken)
         {

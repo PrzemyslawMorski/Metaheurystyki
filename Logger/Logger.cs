@@ -9,11 +9,6 @@ namespace Metaheuristics.Logger
         public Logger(string outputPath)
         {
             OutputPath = outputPath;
-
-            using (new System.IO.StreamWriter(OutputPath, true))
-            {
-                Console.WriteLine($"Successfully created output file at {OutputPath}");
-            }
         }
 
         public void LogOpeningStatsInfoAndPopulationStatsHeader(GA.GaParameters parameters)

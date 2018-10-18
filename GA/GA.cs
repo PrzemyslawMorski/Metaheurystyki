@@ -30,8 +30,6 @@ namespace Metaheuristics.GA
 
         public void Execute(Logger.Logger logger)
         {
-            logger.LogOpeningStatsInfoAndPopulationStatsHeader(Parameters);
-
             for (var i = 0; i < Parameters.NumAlgorithmIterations; i++)
             {
                 var generation = 0;
@@ -41,6 +39,8 @@ namespace Metaheuristics.GA
 
                 while (generation < Parameters.NumGenerations)
                 {
+                    Console.WriteLine($"Iteration {i} Generation {generation}");
+
                     population = Evolve(population);
 
                     EvaluatePopulation(population, generation, logger);
@@ -89,7 +89,7 @@ namespace Metaheuristics.GA
 
         private void EvaluatePopulation(IEnumerable<Individual> population, int generation, Logger.Logger logger)
         {
-            var populationsFitness = population.Select(individual => Problem.FitnessTtp1(individual)).ToList();
+            var populationsFitness = population.Select(individual => Problem.FitnessTtp1(individual)).ToArray();
 
             var bestFitness = populationsFitness.Max();
             var avgFitness = populationsFitness.Average();
@@ -197,7 +197,8 @@ namespace Metaheuristics.GA
             IEnumerable<Tuple<Individual, Individual>> individualsToBeCrossed)
         {
             return individualsToBeCrossed
-                .Select(tupleOfIndividuals => CrossIndividuals(tupleOfIndividuals.Item1, tupleOfIndividuals.Item2)).ToList();
+                .Select(tupleOfIndividuals => CrossIndividuals(tupleOfIndividuals.Item1, tupleOfIndividuals.Item2))
+                .ToList();
         }
 
         private Tuple<Individual, Individual> CrossIndividuals(Individual indiv1, Individual indiv2)
@@ -216,33 +217,37 @@ namespace Metaheuristics.GA
             if (parent1.RoadTaken.Count != parent2.RoadTaken.Count) return child;
 
             var roadLength = parent1.RoadTaken.Count;
+            var road1 = parent1.RoadTaken;
+            var road2 = parent1.RoadTaken;
 
             var firstChildFirstCutIndex = RandomNumGenerator.Next(0, roadLength);
             var firstChildSecondCutIndex = RandomNumGenerator.Next(firstChildFirstCutIndex, roadLength);
 
-            var cutValuesFromIndiv1 = parent1.RoadTaken.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex);
-            var cutValuesFromIndiv2 = parent2.RoadTaken.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex)
+            var cutValuesFromIndiv1 = road1.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex - firstChildFirstCutIndex);
+            var cutValuesFromIndiv2 = road2.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex - firstChildFirstCutIndex)
                 .Where(valueFromIndiv2 => !cutValuesFromIndiv1.Contains(valueFromIndiv2)).ToList();
 
             foreach (var value in cutValuesFromIndiv2)
             {
                 var currentValueFromIndiv2 = value;
-                var valueAtTheSamePositionInIndiv1 = parent1.RoadTaken[parent2.RoadTaken.IndexOf(currentValueFromIndiv2)];
-                var indexOfThatValueInIndiv2 = parent2.RoadTaken.IndexOf(valueAtTheSamePositionInIndiv1);
+                var valueAtTheSamePositionInIndiv1 =
+                    road1[road2.IndexOf(currentValueFromIndiv2)];
+                var indexOfThatValueInIndiv2 = road2.IndexOf(valueAtTheSamePositionInIndiv1);
 
                 while (indexOfThatValueInIndiv2 >= firstChildFirstCutIndex ||
                        indexOfThatValueInIndiv2 < firstChildSecondCutIndex)
                 {
-                    currentValueFromIndiv2 = parent1.RoadTaken[indexOfThatValueInIndiv2];
-                    valueAtTheSamePositionInIndiv1 = parent1.RoadTaken[parent2.RoadTaken.IndexOf(currentValueFromIndiv2)];
-                    indexOfThatValueInIndiv2 = parent2.RoadTaken.IndexOf(valueAtTheSamePositionInIndiv1);
+                    currentValueFromIndiv2 = road1[indexOfThatValueInIndiv2];
+                    valueAtTheSamePositionInIndiv1 =
+                        road1[road2.IndexOf(currentValueFromIndiv2)];
+                    indexOfThatValueInIndiv2 = road2.IndexOf(valueAtTheSamePositionInIndiv1);
                 }
 
                 child.RoadTaken[indexOfThatValueInIndiv2] = value;
             }
 
-            var valuesLeftInIndiv2 = parent2.RoadTaken.Where(value => !cutValuesFromIndiv1.Contains(value) &&
-                                                               !cutValuesFromIndiv2.Contains(value)).ToList();
+            var valuesLeftInIndiv2 = road2.Where(value => !cutValuesFromIndiv1.Contains(value) &&
+                                                                      !cutValuesFromIndiv2.Contains(value)).ToList();
 
             var indexInIndiv1 = 0;
             foreach (var valueLeftInIndiv2 in valuesLeftInIndiv2)

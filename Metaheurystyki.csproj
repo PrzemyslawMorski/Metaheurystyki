@@ -19,4 +19,25 @@
       <None Remove="Tests\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="OutputData\hard_4\" />
+      <Folder Include="OutputData\hard_3\" />
+      <Folder Include="OutputData\hard_2\" />
+      <Folder Include="OutputData\hard_1\" />
+      <Folder Include="OutputData\hard_0\" />
+      <Folder Include="OutputData\trivial_1\" />
+      <Folder Include="OutputData\trivial_0\" />
+      <Folder Include="OutputData\medium_2\" />
+      <Folder Include="OutputData\medium_4\" />
+      <Folder Include="OutputData\medium_3\" />
+      <Folder Include="OutputData\medium_1\" />
+      <Folder Include="OutputData\medium_0\" />
+      <Folder Include="OutputData\easy_2\" />
+      <Folder Include="OutputData\easy_5\" />
+      <Folder Include="OutputData\easy_4\" />
+      <Folder Include="OutputData\easy_3\" />
+      <Folder Include="OutputData\easy_1\" />
+      <Folder Include="OutputData\easy_0\" />
+    </ItemGroup>
+
 </Project>
