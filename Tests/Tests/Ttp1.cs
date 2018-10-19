@@ -26,20 +26,20 @@ namespace Tests
                 1, 2, 3, 4
             };
 
-            var interCityDistances = new Dictionary<Problem.CityCity, double>
+            var interCityDistances = new Dictionary<CityCity, double>
             {
-                {new Problem.CityCity(1, 2), 5},
-                {new Problem.CityCity(1, 3), 6},
-                {new Problem.CityCity(1, 4), 6},
-                {new Problem.CityCity(2, 1), 5},
-                {new Problem.CityCity(2, 3), 6},
-                {new Problem.CityCity(2, 4), 6},
-                {new Problem.CityCity(3, 1), 6},
-                {new Problem.CityCity(3, 2), 5},
-                {new Problem.CityCity(3, 4), 4},
-                {new Problem.CityCity(4, 1), 6},
-                {new Problem.CityCity(4, 2), 6},
-                {new Problem.CityCity(4, 3), 4}
+                {new CityCity(1, 2), 5},
+                {new CityCity(1, 3), 6},
+                {new CityCity(1, 4), 6},
+                {new CityCity(2, 1), 5},
+                {new CityCity(2, 3), 6},
+                {new CityCity(2, 4), 6},
+                {new CityCity(3, 1), 6},
+                {new CityCity(3, 2), 5},
+                {new CityCity(3, 4), 4},
+                {new CityCity(4, 1), 6},
+                {new CityCity(4, 2), 6},
+                {new CityCity(4, 3), 4}
             };
 
             var items = new List<Item>
@@ -52,9 +52,9 @@ namespace Tests
                 new Item {Id = 6, Profit = 30, Weight = 3, AssignedCityId = 2}
             };
 
-            var program = new Problem(problemStats, cities, interCityDistances, items);
+            var problemTtp1 = new ProblemTtp1(problemStats, cities, interCityDistances, items);
 
-            var individual = new Individual
+            var individual = new IndividualTtp1
             {
                 RoadTaken = new List<int> {1, 3, 2, 4}
             };
@@ -65,7 +65,7 @@ namespace Tests
                 new Item {Id = 4, Profit = 20, Weight = 2, AssignedCityId = 2}
             };
 
-            Assert.Equal(-73.14, Math.Round(program.FitnessTtp1(individual, itemsTaken), 2));
+            Assert.Equal(-73.14, Math.Round(problemTtp1.Fitness(individual, itemsTaken), 2));
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Metaheuristics
                 return;
             }
 
-            var algorithm = new Ga(problem, algorithmParams);
+            var algorithm = new GaTtp1(problem, algorithmParams);
 
             algorithm.Execute(logger);
         }

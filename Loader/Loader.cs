@@ -139,7 +139,7 @@ namespace Metaheuristics.Loader
             var items = ExtractItems(srcFileLines, cities);
             if (items == null) return null;
 
-            return new Problem.Problem(problemStats, cities, items);
+            return new Problem.ProblemTtp1(problemStats, cities, items);
         }
 
         private static ProblemStats ExtractProblemStats(List<string> srcFileLines)
