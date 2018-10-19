@@ -99,7 +99,11 @@ namespace Metaheuristics.GA
         {
             if (!guaranteedMutation && !ShouldMutate()) return indiv;
 
-            var indivTtp1 = indiv as IndividualTtp1;
+            if (!(indiv is IndividualTtp1 indivTtp1))
+            {
+                Console.WriteLine("Wrong type of individuals population passed to TTP1. It need TTP2 population.");
+                return null;
+            }
             
             var firstRandomSwapIndex = RandomNumGenerator.Next(0, indivTtp1.RoadTaken.Count);
             var secondRandomSwapIndex = RandomNumGenerator.Next(0, indivTtp1.RoadTaken.Count);
