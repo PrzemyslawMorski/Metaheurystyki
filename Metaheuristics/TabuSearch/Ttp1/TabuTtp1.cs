@@ -32,6 +32,7 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                 tabuList.AddFirst(bestSolution);
 
                 var neighbourhoodHasPotentialSolutions = true;
+                var numConsequentVoidSearches = 0;
 
                 while (numTabuSearches < Parameters.NumTabuSearches && neighbourhoodHasPotentialSolutions)
                 {
@@ -57,6 +58,11 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                     {
                         bestSolution = currentSolution;
                         bestFitness = bestOfNeighbourhood.Item2;
+                        numConsequentVoidSearches = 0;
+                    }
+                    else
+                    {
+                        numConsequentVoidSearches++;
                     }
 
                     logger.LogTabuTtp1Search(numTabuSearches, bestFitness, bestOfNeighbourhood.Item2);
@@ -65,6 +71,11 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
 
                     Console.WriteLine($"TABU SEARCH iteration: {i} tabu search: {numTabuSearches} bestFitness: {bestFitness}");
                     numTabuSearches++;
+
+                    if (numConsequentVoidSearches > 40)
+                    {
+                        neighbourhoodHasPotentialSolutions = false;
+                    }
                 }
             }
         }
