@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Metaheuristics.Algorithms.TabuSearch.Ttp1;
 using Metaheuristics.GA;
+using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
 using Metaheuristics.Problem;
 using Metaheuristics.Problem.TTP1;
-using Metaheuristics.TabuSearch.Ttp1;
 
 namespace Metaheuristics.Loader
 {

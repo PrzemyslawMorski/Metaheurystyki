@@ -1,4 +1,4 @@
-namespace Metaheuristics.Algorithms
+namespace Metaheuristics.Metaheuristics
 {
     public interface IIndividual
     {

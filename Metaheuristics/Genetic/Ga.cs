@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Metaheuristics.Algorithms;
+using Metaheuristics.GA;
 
-namespace Metaheuristics.GA
+namespace Metaheuristics.Metaheuristics.Genetic
 {
     public abstract class Ga
     {

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Metaheuristics.Algorithms;
+using Metaheuristics.Algorithms.Genetic;
+using Metaheuristics.Metaheuristics;
+using Metaheuristics.Metaheuristics.Genetic;
 
 namespace Metaheuristics.GA.TTP2
 {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
+namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
 {
     public class TabuTtp1
     {
@@ -29,13 +29,20 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
                 var bestFitness = Problem.Fitness(bestSolution);
 
                 var tabuList = new LinkedList<IIndividual>();
-                tabuList.AddLast(bestSolution);
+                tabuList.AddFirst(bestSolution);
 
                 var neighbourhoodHasPotentialSolutions = true;
-                
+
                 while (numTabuSearches < Parameters.NumTabuSearches && neighbourhoodHasPotentialSolutions)
                 {
                     var neighbourhoodWithFitness = NeighbourhoodWithFitness(currentSolution);
+
+                    if (neighbourhoodWithFitness == null)
+                    {
+                        Console.WriteLine("NeighbourhoodWithFitness is null.");
+                        return;
+                    }
+
                     var bestOfNeighbourhood = Best(neighbourhoodWithFitness, tabuList);
 
                     if (bestOfNeighbourhood.Item1 == null)
@@ -56,7 +63,7 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
 
                     tabuList = UpdateTabuList(tabuList, bestSolution);
 
-                    Console.WriteLine($"TABU SEARCH iteration: {i} tabu search: {numTabuSearches}");
+                    Console.WriteLine($"TABU SEARCH iteration: {i} tabu search: {numTabuSearches} bestFitness: {bestFitness}");
                     numTabuSearches++;
                 }
             }
@@ -65,11 +72,11 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
         private LinkedList<IIndividual> UpdateTabuList(LinkedList<IIndividual> tabuList,
             IIndividual bestSolution)
         {
-            tabuList.AddLast(bestSolution);
+            tabuList.AddFirst(bestSolution);
 
             if (tabuList.Count >= Parameters.TabuSize)
             {
-                tabuList.RemoveFirst();
+                tabuList.RemoveLast();
             }
 
             return tabuList;
@@ -90,7 +97,7 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
                 randomRoadTaken.Add(randomCityId);
             }
 
-            var individual = new TabuTtpIndividual
+            var individual = new Ttp1Individual
             {
                 RoadTaken = randomRoadTaken
             };
@@ -106,9 +113,20 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
             {
                 var neighbour = Neighbour(solution);
 
+                if (neighbour == null)
+                {
+                    Console.WriteLine("Neighbour is null.");
+                    return null;
+                }
+
                 while (neighbourhood.Contains(neighbour))
                 {
-                    neighbour = Neighbour(solution: solution, deepCopy: false);
+                    neighbour = Neighbour(solution);
+
+                    if (neighbour != null) continue;
+
+                    Console.WriteLine("Neighbour is null.");
+                    return null;
                 }
 
                 neighbourhood.Add(neighbour);
@@ -135,29 +153,23 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
             foreach (var neighbourFitness in neighboursNotInTabu)
             {
                 if (!(neighbourFitness.Value > bestNeighbourFitness)) continue;
-                
+
                 bestNeighbour = neighbourFitness.Key;
                 bestNeighbourFitness = neighbourFitness.Value;
             }
-            
+
             return new Tuple<IIndividual, double>(bestNeighbour, bestNeighbourFitness);
         }
 
-        private IIndividual Neighbour(IIndividual solution, bool deepCopy = true)
+        private IIndividual Neighbour(IIndividual solution)
         {
-            TabuTtpIndividual neighbour = null;
+            Ttp1Individual neighbour = null;
 
-            if (deepCopy)
-            {
-                neighbour = solution.DeepCopy() as TabuTtpIndividual;
-            }
-            else
-            {
-                neighbour = solution as TabuTtpIndividual;
-            }
+            neighbour = solution.DeepCopy() as Ttp1Individual;
 
             if (neighbour == null)
             {
+                Console.WriteLine("Solution passed to Neighbour is not of type TabuTtp1Individual");
                 return null;
             }
 
@@ -173,7 +185,10 @@ namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
             neighbour.RoadTaken[firstRandomSwapIndex] = neighbour.RoadTaken[secondRandomSwapIndex];
             neighbour.RoadTaken[secondRandomSwapIndex] = tmp;
 
-            return neighbour;
+            if (!neighbour.Equals(solution)) return neighbour;
+            
+            Console.WriteLine("Neighbour equals solution.");
+            return null;
         }
     }
 }

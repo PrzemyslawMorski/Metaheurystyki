@@ -1,4 +1,4 @@
-namespace Metaheuristics.Algorithms.TabuSearch.Ttp1
+namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
 {
     public class TabuParameters
     {

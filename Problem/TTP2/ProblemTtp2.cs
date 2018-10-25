@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Metaheuristics.Algorithms;
 using Metaheuristics.GA;
+using Metaheuristics.Metaheuristics;
 
 namespace Metaheuristics.Problem.TTP2
 {

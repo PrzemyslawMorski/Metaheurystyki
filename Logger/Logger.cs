@@ -1,5 +1,4 @@
-﻿using System;
-using Metaheuristics.Algorithms.TabuSearch.Ttp1;
+﻿using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
 
 namespace Metaheuristics.Logger
 {

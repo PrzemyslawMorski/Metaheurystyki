@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Metaheuristics.Algorithms;
 using Metaheuristics.GA;
+using Metaheuristics.Metaheuristics;
 
 namespace Metaheuristics.Problem
 {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Metaheuristics.Algorithms;
+using Metaheuristics.Metaheuristics;
 
 namespace Metaheuristics.GA.TTP2
 {
