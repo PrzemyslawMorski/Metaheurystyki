@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Metaheuristics.Algorithms;
+using Metaheuristics.Algorithms.Genetic.TTP1;
 using Metaheuristics.GA;
 
-namespace Metaheuristics.Problem
+namespace Metaheuristics.Problem.TTP1
 {
     public class ProblemTtp1 : Problem
     {
@@ -63,7 +65,7 @@ namespace Metaheuristics.Problem
             var totalTravelTime = 0d;
             var currentKnapsackWeight = 0d;
 
-            if (!(indiv is IndividualTtp1 indivTtp1)) return totalTravelTime;
+            if (!(indiv is GeneticTtp1Individual indivTtp1)) return totalTravelTime;
 
             for (var i = 0; i < indivTtp1.RoadTaken.Count; i++)
             {

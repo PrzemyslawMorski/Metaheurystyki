@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Metaheuristics.Algorithms.TabuSearch.Ttp1;
 using Metaheuristics.GA;
 using Metaheuristics.Problem;
+using Metaheuristics.Problem.TTP1;
+using Metaheuristics.TabuSearch.Ttp1;
 
 namespace Metaheuristics.Loader
 {
@@ -23,6 +26,10 @@ namespace Metaheuristics.Loader
         private const string MutationProbabilityPrefix = "MUTATION PROBABILITY:";
         private const string CrossProbabilityPrefix = "CROSSING PROBABILITY:";
         private const string TournamentSizePrefix = "TOURNAMENT SIZE:";
+
+        private const string NeighbourhoodSizePrefix = "NEIGHBOURHOOD SIZE:";
+        private const string TabuListSizePrefix = "TABU LIST SIZE:";
+        private const string NumTabuSearchesPrefix = "NUMBER OF TABU SEARCHES:";
 
         public static Problem.Problem LoadProblem(string srcFilePath)
         {
@@ -58,16 +65,17 @@ namespace Metaheuristics.Loader
             return srcFileLines;
         }
 
-        public static GA.GaParameters LoadAlgorithmParams(string srcFilePath)
+        public static GA.GaParameters LoadGeneticTtp1Params(string srcFilePath)
         {
-            return ExtractAlgorithmParameters(LoadSrcFileLines(srcFilePath));
+            return ExtractGeneticTtp1Parameters(LoadSrcFileLines(srcFilePath));
         }
 
-        private static GaParameters ExtractAlgorithmParameters(List<string> srcFileLines)
+        private static GaParameters ExtractGeneticTtp1Parameters(List<string> srcFileLines)
         {
             try
             {
-                var numAlgorithmIterationsLine = srcFileLines.Find(line => line.StartsWith(NumAlgorithmIterationsPrefix));
+                var numAlgorithmIterationsLine =
+                    srcFileLines.Find(line => line.StartsWith(NumAlgorithmIterationsPrefix));
                 var populationSizeLine = srcFileLines.Find(line => line.StartsWith(PopulationSizePrefix));
                 var numGenerationsLine = srcFileLines.Find(line => line.StartsWith(NumGenerationsPrefix));
                 var mutationProbabilityLine = srcFileLines.Find(line => line.StartsWith(MutationProbabilityPrefix));
@@ -81,7 +89,7 @@ namespace Metaheuristics.Loader
                     crossProbabilityLine == null ||
                     tournamentSizeLine == null)
                 {
-                    Console.WriteLine($"Src file format error - first 6 lines need to be: " +
+                    Console.WriteLine($"Genetic ttp1 configuration file format error - first 6 lines need to be: " +
                                       $"\n {NumAlgorithmIterationsPrefix} INT" +
                                       $"\n {PopulationSizePrefix} INT" +
                                       $"\n {NumGenerationsPrefix} INT" +
@@ -92,10 +100,12 @@ namespace Metaheuristics.Loader
                     return null;
                 }
 
-                var numAlgorithmIterations = int.Parse(numAlgorithmIterationsLine.Replace(NumAlgorithmIterationsPrefix, "").Trim());
+                var numAlgorithmIterations =
+                    int.Parse(numAlgorithmIterationsLine.Replace(NumAlgorithmIterationsPrefix, "").Trim());
                 var populationSize = int.Parse(populationSizeLine.Replace(PopulationSizePrefix, "").Trim());
                 var numGenerations = int.Parse(numGenerationsLine.Replace(NumGenerationsPrefix, "").Trim());
-                var mutationProbability = double.Parse(mutationProbabilityLine.Replace(MutationProbabilityPrefix, "").Trim());
+                var mutationProbability =
+                    double.Parse(mutationProbabilityLine.Replace(MutationProbabilityPrefix, "").Trim());
                 var crossProbability = double.Parse(crossProbabilityLine.Replace(CrossProbabilityPrefix, "").Trim());
                 var tournamentSize = int.Parse(tournamentSizeLine.Replace(TournamentSizePrefix, "").Trim());
 
@@ -116,7 +126,7 @@ namespace Metaheuristics.Loader
             }
             catch (FormatException)
             {
-                Console.WriteLine($"Src file format error - first 6 lines need to be: " +
+                Console.WriteLine($"Genetic ttp1 configuration file format error - first 6 lines need to be: " +
                                   $"\n {NumAlgorithmIterationsPrefix} INT" +
                                   $"\n {PopulationSizePrefix} INT" +
                                   $"\n {NumGenerationsPrefix} INT" +
@@ -139,7 +149,7 @@ namespace Metaheuristics.Loader
             var items = ExtractItems(srcFileLines, cities);
             if (items == null) return null;
 
-            return new Problem.ProblemTtp1(problemStats, cities, items);
+            return new ProblemTtp1(problemStats, cities, items);
         }
 
         private static ProblemStats ExtractProblemStats(List<string> srcFileLines)
@@ -359,6 +369,59 @@ namespace Metaheuristics.Loader
             catch (FormatException)
             {
                 Console.WriteLine($"Src file format error - {NumItemsPrefix} INT, sth other than INT specified.");
+                return null;
+            }
+        }
+
+        public static TabuParameters LoadTabuTtp1Params(string algorithmSrcFilePath)
+        {
+            return ExtractTabuTtp1Params(LoadSrcFileLines(algorithmSrcFilePath));
+        }
+
+        private static TabuParameters ExtractTabuTtp1Params(List<string> srcFileLines)
+        {
+            try
+            {
+                var numAlgorithmIterationsLine =
+                    srcFileLines.Find(line => line.StartsWith(NumAlgorithmIterationsPrefix));
+                var numTabuSearchesLine = srcFileLines.Find(line => line.StartsWith(NumTabuSearchesPrefix));
+                var neighbourhoodSizeLine = srcFileLines.Find(line => line.StartsWith(NeighbourhoodSizePrefix));
+                var tabuListSizeLine = srcFileLines.Find(line => line.StartsWith(TabuListSizePrefix));
+
+                if (neighbourhoodSizeLine == null ||
+                    tabuListSizeLine == null)
+                {
+                    Console.WriteLine($"Tabu ttp1 configuration file format error - first 4 lines need to be: " +
+                                      $"\n {NumAlgorithmIterationsPrefix} INT" +
+                                      $"\n {NumTabuSearchesPrefix} INT" +
+                                      $"\n {NeighbourhoodSizePrefix} INT" +
+                                      $"\n {TabuListSizePrefix} INT" +
+                                      "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
+                    return null;
+                }
+
+                var numAlgorithmIterations =
+                    int.Parse(numAlgorithmIterationsLine.Replace(NumAlgorithmIterationsPrefix, "").Trim());
+                var numTabuSearches = int.Parse(numTabuSearchesLine.Replace(NumTabuSearchesPrefix, "").Trim());
+                var neighbourhoodSize = int.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+                var tabuListSize = int.Parse(tabuListSizeLine.Replace(TabuListSizePrefix, "").Trim());
+
+                return new TabuParameters()
+                {
+                    NumAlgorithmIterations = numAlgorithmIterations,
+                    NumTabuSearches = numTabuSearches,
+                    NeighbourhoodSize = neighbourhoodSize,
+                    TabuSize = tabuListSize
+                };
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Tabu ttp1 configuration file format error - first 4 lines need to be: " +
+                                  $"\n {NumAlgorithmIterationsPrefix} INT" +
+                                  $"\n {NumTabuSearchesPrefix} INT" +
+                                  $"\n {NeighbourhoodSizePrefix} INT" +
+                                  $"\n {TabuListSizePrefix} INT" +
+                                  "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
                 return null;
             }
         }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Metaheuristics.Algorithms.Genetic.TTP1;
 using Metaheuristics.GA;
 using Metaheuristics.Problem;
+using Metaheuristics.Problem.TTP1;
 using Xunit;
 
 namespace Tests
@@ -54,7 +56,7 @@ namespace Tests
 
             var problemTtp1 = new ProblemTtp1(problemStats, cities, interCityDistances, items);
 
-            var individual = new IndividualTtp1
+            var individual = new GeneticTtp1Individual
             {
                 RoadTaken = new List<int> {1, 3, 2, 4}
             };

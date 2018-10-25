@@ -1,4 +1,6 @@
 ﻿using System;
+using Metaheuristics.Algorithms.Genetic.TTP1;
+using Metaheuristics.Algorithms.TabuSearch.Ttp1;
 using Metaheuristics.GA;
 
 namespace Metaheuristics
@@ -7,10 +9,10 @@ namespace Metaheuristics
     {
         private static void Main()
         {
-            var problemSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_PROBLEM_SRC_FILE");
-            var algorithmSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_ALGORITHM_SRC_FILE");
-            var outputFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_LOG_OUTPUT_FILE");
-
+            var algorithmType = Environment.GetEnvironmentVariable("METAHEURISTIC_TYPE", EnvironmentVariableTarget.User);
+            var problemSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_PROBLEM_SRC_FILE", EnvironmentVariableTarget.User);
+            var algorithmSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_ALGORITHM_SRC_FILE", EnvironmentVariableTarget.User);
+            var outputFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_LOG_OUTPUT_FILE", EnvironmentVariableTarget.User);
 
             if (problemSrcFilePath == null)
             {
@@ -45,21 +47,66 @@ namespace Metaheuristics
             }
 
             Console.WriteLine("Done reading problem's src file.");
+            
+            switch (algorithmType)
+            {
+                case "TABU_SEARCH_TTP1":
+                    TabuSearchTtp1(problem, algorithmSrcFilePath, outputFilePath);
+                    break;
+                case "GENETIC_TTP1":
+                    GeneticTtp1(problem, algorithmSrcFilePath, outputFilePath);
+                    break;
+                default:
+                    Console.WriteLine(
+                        "Please set environment variable METAHEURISTIC_TYPE to be either 'TABU_SEARCH_TTP1' or 'GENETIC_TTP1'.");
+                    return;
+            }
+        }
 
-            var algorithmParams = Loader.Loader.LoadAlgorithmParams(algorithmSrcFilePath);
+        private static void TabuSearchTtp1(Problem.Problem problem, string algorithmSrcFilePath, string outputFilePath)
+        {
+            var algorithmParams = Loader.Loader.LoadTabuTtp1Params(algorithmSrcFilePath);
             if (algorithmParams == null)
             {
-                Console.WriteLine("Error reading algorithm's src file.");
+                Console.WriteLine("Error reading tabu ttp1's configuration src file.");
                 return;
             }
 
-            Console.WriteLine("Done reading algorithm's src file.");
+            Console.WriteLine("Done reading tabu ttp1's configuration src file.");
 
             var logger = new Logger.Logger(outputFilePath);
 
             try
             {
-                logger.LogOpeningStatsInfoAndPopulationStatsHeader(algorithmParams);
+                logger.LogTabuTtp1Intro(algorithmParams);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                Console.WriteLine("Error writing to tabu ttp1's log output file.");
+                return;
+            }
+
+            var algorithm = new TabuTtp1(problem, algorithmParams);
+            algorithm.Execute(logger);
+        }
+
+        private static void GeneticTtp1(Problem.Problem problem, string algorithmSrcFilePath, string outputFilePath)
+        {
+            var algorithmParams = Loader.Loader.LoadGeneticTtp1Params(algorithmSrcFilePath);
+            if (algorithmParams == null)
+            {
+                Console.WriteLine("Error reading genetic ttp1's configuration src file.");
+                return;
+            }
+
+            Console.WriteLine("Done reading genetic ttp1's configuration src file.");
+
+            var logger = new Logger.Logger(outputFilePath);
+
+            try
+            {
+                logger.LogGeneticTtp1Intro(algorithmParams);
             }
             catch (Exception e)
             {
@@ -69,7 +116,6 @@ namespace Metaheuristics
             }
 
             var algorithm = new GaTtp1(problem, algorithmParams);
-
             algorithm.Execute(logger);
         }
     }

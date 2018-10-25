@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Metaheuristics.Algorithms;
 
 namespace Metaheuristics.GA
 {
@@ -42,7 +43,7 @@ namespace Metaheuristics.GA
             var avgFitness = populationsFitness.Average();
             var worstFitness = populationsFitness.Min();
 
-            logger.LogPopulationStats(generation, bestFitness, avgFitness, worstFitness);
+            logger.LogGeneticTtp1Generation(generation, bestFitness, avgFitness, worstFitness);
         }
 
         protected bool ShouldMutate()

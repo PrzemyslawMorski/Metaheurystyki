@@ -1,4 +1,5 @@
 ﻿using System;
+using Metaheuristics.Algorithms.TabuSearch.Ttp1;
 
 namespace Metaheuristics.Logger
 {
@@ -11,7 +12,7 @@ namespace Metaheuristics.Logger
             OutputPath = outputPath;
         }
 
-        public void LogOpeningStatsInfoAndPopulationStatsHeader(GA.GaParameters parameters)
+        public void LogGeneticTtp1Intro(GA.GaParameters parameters)
         {
             using (var file = new System.IO.StreamWriter(OutputPath, true))
             {
@@ -25,11 +26,29 @@ namespace Metaheuristics.Logger
             }
         }
 
-        public void LogPopulationStats(int generation, double bestFitness, double avgFitness, double worstFitness)
+        public void LogTabuTtp1Intro(TabuParameters parameters)
+        {
+            using (var file = new System.IO.StreamWriter(OutputPath, true))
+            {
+                file.WriteLine("TABU LIST SIZE:" + parameters.TabuSize);
+                file.WriteLine("NEIGHBOURHOOD SIZE:" + parameters.NeighbourhoodSize);
+                file.WriteLine("NUM_SEARCH;BEST_FITNESS; CURRENT_FITNESS;");
+            }
+        }
+
+        public void LogGeneticTtp1Generation(int generation, double bestFitness, double avgFitness, double worstFitness)
         {
             using (var file = new System.IO.StreamWriter(OutputPath, true))
             {
                 file.WriteLine($"{generation};{bestFitness};{avgFitness};{worstFitness};");
+            }
+        }
+
+        public void LogTabuTtp1Search(int numSearch, double bestFitness, double currentFitness)
+        {
+            using (var file = new System.IO.StreamWriter(OutputPath, true))
+            {
+                file.WriteLine($"{numSearch};{bestFitness};{currentFitness};");
             }
         }
     }

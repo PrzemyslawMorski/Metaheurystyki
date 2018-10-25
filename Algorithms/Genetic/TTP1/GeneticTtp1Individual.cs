@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using Metaheuristics.GA;
 
-namespace Metaheuristics.GA
+namespace Metaheuristics.Algorithms.Genetic.TTP1
 {
-    public class IndividualTtp1 : IIndividual
+    public class GeneticTtp1Individual : IIndividual
     {
         /*
             RoadTaken contains Id's of cities that were visited in order of the time they were visited.
@@ -14,7 +15,7 @@ namespace Metaheuristics.GA
 
         public IIndividual DeepCopy()
         {
-            return new IndividualTtp1
+            return new GeneticTtp1Individual
             {
                 RoadTaken = new List<int>(RoadTaken)
             };
@@ -22,7 +23,7 @@ namespace Metaheuristics.GA
 
         public bool Equals(IIndividual other)
         {
-            return other is IndividualTtp1 otherTtp1 && RoadTaken.Equals(otherTtp1.RoadTaken);
+            return other is GeneticTtp1Individual otherTtp1 && RoadTaken.Equals(otherTtp1.RoadTaken);
         }
     }
 }

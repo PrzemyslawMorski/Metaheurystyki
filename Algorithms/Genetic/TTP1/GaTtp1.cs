@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Metaheuristics.GA;
 
-namespace Metaheuristics.GA
+namespace Metaheuristics.Algorithms.Genetic.TTP1
 {
     public class GaTtp1 : Ga
     {
@@ -50,7 +51,7 @@ namespace Metaheuristics.GA
                     randomRoadTaken.Add(randomCityId);
                 }
 
-                var individual = new IndividualTtp1
+                var individual = new GeneticTtp1Individual
                 {
                     RoadTaken = randomRoadTaken
                 };
@@ -65,9 +66,8 @@ namespace Metaheuristics.GA
         {
             var numPairs = currentPopulation.Count / 2;
             var resultingPairs = new List<Tuple<IIndividual, IIndividual>>();
-            var currentPopulationTtp1 = currentPopulation as IList<IndividualTtp1>;
 
-            if (currentPopulationTtp1 == null)
+            if (!(currentPopulation is IList<GeneticTtp1Individual> currentPopulationTtp1))
             {
                 Console.WriteLine("Wrong type of individuals population passed to TTP1. It need TTP2 population.");
                 return null;
@@ -75,8 +75,8 @@ namespace Metaheuristics.GA
             
             for (var i = 0; i < numPairs; i++)
             {
-                var firstIndiv = TournamentSelect(currentPopulation) as IndividualTtp1;
-                var secondIndiv = TournamentSelect(currentPopulation) as IndividualTtp1;
+                var firstIndiv = TournamentSelect(currentPopulation) as GeneticTtp1Individual;
+                var secondIndiv = TournamentSelect(currentPopulation) as GeneticTtp1Individual;
 
                 if (firstIndiv == null || secondIndiv == null)
                 {
@@ -99,7 +99,7 @@ namespace Metaheuristics.GA
         {
             if (!guaranteedMutation && !ShouldMutate()) return indiv;
 
-            if (!(indiv is IndividualTtp1 indivTtp1))
+            if (!(indiv is GeneticTtp1Individual indivTtp1))
             {
                 Console.WriteLine("Wrong type of individuals population passed to TTP1. It need TTP2 population.");
                 return null;
@@ -135,7 +135,7 @@ namespace Metaheuristics.GA
         {
             var child = parent1.DeepCopy();
 
-            if(!(parent1 is IndividualTtp1 parent1Ttp1) || !(parent2 is IndividualTtp1 parent2Ttp1) || !(child is IndividualTtp1 childTtp1)) return child; 
+            if(!(parent1 is GeneticTtp1Individual parent1Ttp1) || !(parent2 is GeneticTtp1Individual parent2Ttp1) || !(child is GeneticTtp1Individual childTtp1)) return child; 
             if (parent1Ttp1.RoadTaken.Count != parent2Ttp1.RoadTaken.Count) return childTtp1;
 
             var roadLength = parent1Ttp1.RoadTaken.Count;
