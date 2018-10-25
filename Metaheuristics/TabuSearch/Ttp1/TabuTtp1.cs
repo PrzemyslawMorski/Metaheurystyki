@@ -74,7 +74,7 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
         {
             tabuList.AddFirst(bestSolution);
 
-            if (tabuList.Count >= Parameters.TabuSize)
+            if (tabuList.Count > Parameters.TabuSize)
             {
                 tabuList.RemoveLast();
             }
