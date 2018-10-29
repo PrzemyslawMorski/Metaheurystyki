@@ -1,5 +1,6 @@
 ﻿using System;
 using Metaheuristics.Algorithms.Genetic.TTP1;
+using Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1;
 using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
 
 namespace Metaheuristics
@@ -55,11 +56,42 @@ namespace Metaheuristics
                 case "GENETIC_TTP1":
                     GeneticTtp1(problem, algorithmSrcFilePath, outputFilePath);
                     break;
+                case "ANNEALING_TTP1":
+                    SimulatedAnnealingTtp1(problem, algorithmSrcFilePath, outputFilePath);
+                    break;
                 default:
                     Console.WriteLine(
                         "Please set environment variable METAHEURISTIC_TYPE to be either 'TABU_SEARCH_TTP1' or 'GENETIC_TTP1'.");
                     return;
             }
+        }
+
+        private static void SimulatedAnnealingTtp1(Problem.Problem problem, string algorithmSrcFilePath, string outputFilePath)
+        {
+            var algorithmParams = Loader.Loader.LoadAnnealingTtp1Params(algorithmSrcFilePath);
+            if (algorithmParams == null)
+            {
+                Console.WriteLine("Error reading annealing ttp1's configuration src file.");
+                return;
+            }
+
+            Console.WriteLine("Done reading annealing ttp1's configuration src file.");
+
+            var logger = new Logger.Logger(outputFilePath);
+
+            try
+            {
+                logger.LogAnnealingTtp1Intro(algorithmParams);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                Console.WriteLine("Error writing to annealing ttp1's log output file.");
+                return;
+            }
+
+            var algorithm = new AnnealingTtp1(problem, algorithmParams);
+            algorithm.Execute(logger);
         }
 
         private static void TabuSearchTtp1(Problem.Problem problem, string algorithmSrcFilePath, string outputFilePath)

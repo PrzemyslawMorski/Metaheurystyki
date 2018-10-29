@@ -55,10 +55,7 @@ namespace Tests
 
             var problemTtp1 = new ProblemTtp1(problemStats, cities, interCityDistances, items);
 
-            var individual = new Ttp1Individual
-            {
-                RoadTaken = new List<int> {1, 3, 2, 4}
-            };
+            var individual = new Ttp1Individual(new List<int> {1, 3, 2, 4});
 
             var itemsTaken = new List<Item>
             {

@@ -11,19 +11,31 @@ namespace Metaheuristics.Metaheuristics
             RoadTaken is always the size of ProblemStats.NumCities
         */
         
-        public List<int> RoadTaken { get; set; }
+        public List<int> RoadTaken { get; }
 
+        public Ttp1Individual(List<int> roadTaken)
+        {
+            RoadTaken = roadTaken;
+        }
+        
         public IIndividual DeepCopy()
         {
-            return new Ttp1Individual
+            return new Ttp1Individual(new List<int>(RoadTaken));
+        }
+        
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Ttp1Individual item))
             {
-                RoadTaken = new List<int>(RoadTaken)
-            };
+                return false;
+            }
+
+            return RoadTaken.Equals(item.RoadTaken);
         }
 
-        public bool Equals(IIndividual other)
+        public override int GetHashCode()
         {
-            return other is Ttp1Individual otherTtp1 && RoadTaken.Equals(otherTtp1.RoadTaken);
+            return RoadTaken.GetHashCode();
         }
     }
 }

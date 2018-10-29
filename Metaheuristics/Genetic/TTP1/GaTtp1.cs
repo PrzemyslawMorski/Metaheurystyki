@@ -53,11 +53,7 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
                     randomRoadTaken.Add(randomCityId);
                 }
 
-                var individual = new Ttp1Individual
-                {
-                    RoadTaken = randomRoadTaken
-                };
-
+                var individual = new Ttp1Individual(randomRoadTaken);
                 population.Add(individual);
             }
 

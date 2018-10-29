@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
+namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
 {
-    public class TabuTtp1
+    public class AnnealingTtp1
     {
-        public TabuTtp1(Problem.Problem problem, TabuParameters parameters)
+        public AnnealingTtp1(Problem.Problem problem, AnnealingParameters parameters)
         {
             Problem = problem;
             Parameters = parameters;
@@ -14,29 +13,22 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
         }
 
         private Problem.Problem Problem { get; }
-        private TabuParameters Parameters { get; }
+        private AnnealingParameters Parameters { get; }
         private Random RandomNumGenerator { get; }
 
         public void Execute(Logger.Logger logger)
         {
             for (var i = 0; i < Parameters.NumAlgorithmIterations; i++)
             {
-                var numTabuSearches = 0;
+                var numAnnealingCycles = 0;
+                var temperature = Parameters.InitialTemperature;
 
-                var currentSolution = InitialSolution(Problem.CityIds);
-
-                var bestSolution = currentSolution.DeepCopy();
+                var bestSolution = InitialSolution(Problem.CityIds);
                 var bestFitness = Problem.Fitness(bestSolution);
 
-                var tabuList = new LinkedList<IIndividual>();
-                tabuList.AddFirst(bestSolution);
-
-                var neighbourhoodHasPotentialSolutions = true;
-//                var numConsequentVoidSearches = 0;
-
-                while (numTabuSearches < Parameters.NumTabuSearches && neighbourhoodHasPotentialSolutions)
+                while (numAnnealingCycles < Parameters.NumAnnealingCycles)
                 {
-                    var neighbourhoodWithFitness = NeighbourhoodWithFitness(currentSolution);
+                    var neighbourhoodWithFitness = NeighbourhoodWithFitness(bestSolution);
 
                     if (neighbourhoodWithFitness == null)
                     {
@@ -44,44 +36,37 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                         return;
                     }
 
-                    var bestOfNeighbourhood = Best(neighbourhoodWithFitness, tabuList);
+                    var bestOfNeighbourhood = Best(neighbourhoodWithFitness);
 
-                    if (bestOfNeighbourhood.Item1 == null)
+                    if (bestOfNeighbourhood.Item2 > bestFitness ||
+                        ShouldTryLeaveLocalOptima(bestFitness, bestOfNeighbourhood.Item2, temperature))
                     {
-                        neighbourhoodHasPotentialSolutions = false;
-                        continue;
-                    }
-
-                    currentSolution = bestOfNeighbourhood.Item1;
-
-                    if (bestOfNeighbourhood.Item2 > bestFitness)
-                    {
-                        bestSolution = currentSolution;
+                        bestSolution = bestOfNeighbourhood.Item1;
                         bestFitness = bestOfNeighbourhood.Item2;
                     }
 
-                    logger.LogTabuTtp1Search(numTabuSearches, bestFitness, bestOfNeighbourhood.Item2);
-
-                    tabuList = UpdateTabuList(tabuList, currentSolution);
+                    logger.LogAnnealingTtp1Cycle(numAnnealingCycles, bestFitness, bestOfNeighbourhood.Item2,
+                        temperature);
 
                     Console.WriteLine(
-                        $"TABU SEARCH iteration: {i} tabu search: {numTabuSearches} bestFitness: {bestFitness}");
-                    numTabuSearches++;
+                        $"SIMULATED ANNEALING iteration: {i} annealing cycle: {numAnnealingCycles} bestFitness: {bestFitness}");
+
+                    numAnnealingCycles++;
+                    temperature = NextTemperature(temperature, numAnnealingCycles);
                 }
             }
         }
 
-        private LinkedList<IIndividual> UpdateTabuList(LinkedList<IIndividual> tabuList,
-            IIndividual bestSolution)
+        private bool ShouldTryLeaveLocalOptima(double bestFitness, double currentSolutionFitness, double temperature)
         {
-            tabuList.AddFirst(bestSolution);
+            var randomChance = RandomNumGenerator.NextDouble();
+            var chanceForWorseSolutionAccepted = Math.Exp((currentSolutionFitness - bestFitness) / temperature);
+            return randomChance < chanceForWorseSolutionAccepted;
+        }
 
-            if (tabuList.Count > Parameters.TabuSize)
-            {
-                tabuList.RemoveLast();
-            }
-
-            return tabuList;
+        private double NextTemperature(double currentTemperature, int annealingCycle)
+        {
+            return (100 - Parameters.TemperaturePercentageDropPerCycle * annealingCycle) / 100 * currentTemperature;
         }
 
         private IIndividual InitialSolution(IReadOnlyCollection<int> cityIds)
@@ -139,15 +124,12 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
             return neighbourhoodWithFitness;
         }
 
-        private static Tuple<IIndividual, double> Best(Dictionary<IIndividual, double> neighbourhood,
-            ICollection<IIndividual> tabuList)
+        private static Tuple<IIndividual, double> Best(Dictionary<IIndividual, double> neighbourhood)
         {
-            var neighboursNotInTabu = neighbourhood.Where(neighbourFitness => !tabuList.Contains(neighbourFitness.Key));
-
             IIndividual bestNeighbour = null;
             var bestNeighbourFitness = double.MinValue;
 
-            foreach (var neighbourFitness in neighboursNotInTabu)
+            foreach (var neighbourFitness in neighbourhood)
             {
                 if (!(neighbourFitness.Value > bestNeighbourFitness)) continue;
 

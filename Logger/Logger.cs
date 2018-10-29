@@ -1,4 +1,5 @@
-﻿using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
+﻿using Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1;
+using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
 
 namespace Metaheuristics.Logger
 {
@@ -34,6 +35,17 @@ namespace Metaheuristics.Logger
                 file.WriteLine("NUM_SEARCH;BEST_FITNESS; CURRENT_FITNESS;");
             }
         }
+        
+        public void LogAnnealingTtp1Intro(AnnealingParameters parameters)
+        {
+            using (var file = new System.IO.StreamWriter(OutputPath, true))
+            {
+                file.WriteLine("NEIGHBOURHOOD SIZE:" + parameters.NeighbourhoodSize);
+                file.WriteLine("INITIAL TEMPERATURE:" + parameters.InitialTemperature);
+                file.WriteLine("TEMPERATURE PERCENTAGE DROP PER ANNEALING CYCLE:" + parameters.TemperaturePercentageDropPerCycle);
+                file.WriteLine("NUM_CYCLE;BEST_FITNESS; CURRENT_FITNESS;TEMPERATURE;");
+            }
+        }
 
         public void LogGeneticTtp1Generation(int generation, double bestFitness, double avgFitness, double worstFitness)
         {
@@ -48,6 +60,14 @@ namespace Metaheuristics.Logger
             using (var file = new System.IO.StreamWriter(OutputPath, true))
             {
                 file.WriteLine($"{numSearch};{bestFitness};{currentFitness};");
+            }
+        }
+
+        public void LogAnnealingTtp1Cycle(int numAnnealingCycles, double bestFitness, double currentFitness, double temperature)
+        {
+            using (var file = new System.IO.StreamWriter(OutputPath, true))
+            {
+                file.WriteLine($"{numAnnealingCycles};{bestFitness};{currentFitness};{temperature}");
             }
         }
     }

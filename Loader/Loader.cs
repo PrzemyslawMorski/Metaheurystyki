@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Metaheuristics.GA;
+using Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1;
 using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
 using Metaheuristics.Problem;
 using Metaheuristics.Problem.TTP1;
@@ -29,6 +31,10 @@ namespace Metaheuristics.Loader
         private const string NeighbourhoodSizePrefix = "NEIGHBOURHOOD SIZE:";
         private const string TabuListSizePrefix = "TABU LIST SIZE:";
         private const string NumTabuSearchesPrefix = "NUMBER OF TABU SEARCHES:";
+
+        private const string NumAnnealingCyclesPrefix = "NUM ANNEALING CYCLES:";
+        private const string InitialTemperaturePrefix = "INITIAL TEMPERATURE:";
+        private const string TemperaturePercentageDropPerCyclePrefix = "TEMPERATURE PERCENTAGE DROP PER ANNEALING CYCLE:";
 
         public static Problem.Problem LoadProblem(string srcFilePath)
         {
@@ -420,6 +426,74 @@ namespace Metaheuristics.Loader
                                   $"\n {NumTabuSearchesPrefix} INT" +
                                   $"\n {NeighbourhoodSizePrefix} INT" +
                                   $"\n {TabuListSizePrefix} INT" +
+                                  "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
+                return null;
+            }
+        }
+
+        public static AnnealingParameters LoadAnnealingTtp1Params(string algorithmSrcFilePath)
+        {
+            return ExtractAnnealingTtp1Params(LoadSrcFileLines(algorithmSrcFilePath));
+        }
+
+        private static AnnealingParameters ExtractAnnealingTtp1Params(List<string> srcFileLines)
+        {
+            try
+            {
+                var numAlgorithmIterationsLine =
+                    srcFileLines.Find(line => line.StartsWith(NumAlgorithmIterationsPrefix));
+                var neighbourhoodSizeLine = srcFileLines.Find(line => line.StartsWith(NeighbourhoodSizePrefix));
+
+                var numAnnealingCyclesLine = srcFileLines.Find(line => line.StartsWith(NumAnnealingCyclesPrefix));
+                var initialTemperatureLine = srcFileLines.Find(line => line.StartsWith(InitialTemperaturePrefix));
+                var temperaturePercentageDropPerCycleLine =
+                    srcFileLines.Find(line => line.StartsWith(TemperaturePercentageDropPerCyclePrefix));
+
+
+                if (neighbourhoodSizeLine == null ||
+                    numAnnealingCyclesLine == null ||
+                    initialTemperatureLine == null ||
+                    temperaturePercentageDropPerCycleLine == null ||
+                    numAlgorithmIterationsLine == null)
+                {
+                    Console.WriteLine($"Annealing ttp1 configuration file format error - first 5 lines need to be: " +
+                                      $"\n {NumAlgorithmIterationsPrefix} INT" +
+                                      $"\n {NumAnnealingCyclesPrefix} INT" +
+                                      $"\n {NeighbourhoodSizePrefix} INT" +
+                                      $"\n {InitialTemperaturePrefix} REAL" +
+                                      $"\n {TemperaturePercentageDropPerCyclePrefix} REAL" +
+                                      "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
+                    return null;
+                }
+
+                var numAlgorithmIterations =
+                    int.Parse(numAlgorithmIterationsLine.Replace(NumAlgorithmIterationsPrefix, "").Trim());
+                var neighbourhoodSize = int.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+
+                var numAnnealingCycles = int.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+                var initialTemperature =
+                    double.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+                var temperaturePercentageDropPerCycle =
+                    double.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+
+
+                return new AnnealingParameters
+                {
+                    NumAlgorithmIterations = numAlgorithmIterations,
+                    NeighbourhoodSize = neighbourhoodSize,
+                    NumAnnealingCycles = numAnnealingCycles,
+                    InitialTemperature = initialTemperature,
+                    TemperaturePercentageDropPerCycle = temperaturePercentageDropPerCycle
+                };
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Annealing ttp1 configuration file format error - first 5 lines need to be: " +
+                                  $"\n {NumAlgorithmIterationsPrefix} INT" +
+                                  $"\n {NumAnnealingCyclesPrefix} INT" +
+                                  $"\n {NeighbourhoodSizePrefix} INT" +
+                                  $"\n {InitialTemperaturePrefix} REAL" +
+                                  $"\n {TemperaturePercentageDropPerCyclePrefix} REAL" +
                                   "\n Not necessarily in this order but the lines need to be present and they need to end with values corresponding to the line\'s content");
                 return null;
             }
