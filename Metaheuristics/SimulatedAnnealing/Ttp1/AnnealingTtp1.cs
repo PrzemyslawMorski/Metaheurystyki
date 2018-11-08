@@ -36,20 +36,20 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
                         return;
                     }
 
-                    var bestOfNeighbourhood = Best(neighbourhoodWithFitness);
+                    var currentSolution = Best(neighbourhoodWithFitness);
 
-                    if (bestOfNeighbourhood.Item2 > bestFitness ||
-                        ShouldTryLeaveLocalOptima(bestFitness, bestOfNeighbourhood.Item2, temperature))
+                    if (currentSolution.Item2 > bestFitness ||
+                        ShouldTryLeaveLocalOptima(bestFitness, currentSolution.Item2, temperature))
                     {
-                        bestSolution = bestOfNeighbourhood.Item1;
-                        bestFitness = bestOfNeighbourhood.Item2;
+                        bestSolution = currentSolution.Item1;
+                        bestFitness = currentSolution.Item2;
                     }
 
-                    logger.LogAnnealingTtp1Cycle(numAnnealingCycles, bestFitness, bestOfNeighbourhood.Item2,
+                    logger.LogAnnealingTtp1Cycle(numAnnealingCycles, bestFitness, currentSolution.Item2,
                         temperature);
 
                     Console.WriteLine(
-                        $"SIMULATED ANNEALING iteration: {i} annealing cycle: {numAnnealingCycles} bestFitness: {bestFitness}");
+                        $"SIMULATED ANNEALING iteration: {i} annealing cycle: {numAnnealingCycles} bestFitness: {bestFitness} temperature: {temperature}");
 
                     numAnnealingCycles++;
                     temperature = NextTemperature(temperature, numAnnealingCycles);
@@ -60,13 +60,18 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
         private bool ShouldTryLeaveLocalOptima(double bestFitness, double currentSolutionFitness, double temperature)
         {
             var randomChance = RandomNumGenerator.NextDouble();
-            var chanceForWorseSolutionAccepted = Math.Exp((currentSolutionFitness - bestFitness) / temperature);
+            var chanceForWorseSolutionAccepted =
+                1D / (1D + Math.Exp((bestFitness - currentSolutionFitness) / temperature));
             return randomChance < chanceForWorseSolutionAccepted;
         }
 
         private double NextTemperature(double currentTemperature, int annealingCycle)
         {
-            return (100 - Parameters.TemperaturePercentageDropPerCycle * annealingCycle) / 100 * currentTemperature;
+            var nextTemperatureAsPercentageOfInitialTemperature =
+                (100D - Parameters.TemperaturePercentageDropPerCycle * annealingCycle) / 100D;
+            var nextTemperature = Parameters.InitialTemperature * nextTemperatureAsPercentageOfInitialTemperature;
+
+            return nextTemperature < 0D ? 0D : nextTemperature;
         }
 
         private IIndividual InitialSolution(IReadOnlyCollection<int> cityIds)

@@ -470,11 +470,11 @@ namespace Metaheuristics.Loader
                     int.Parse(numAlgorithmIterationsLine.Replace(NumAlgorithmIterationsPrefix, "").Trim());
                 var neighbourhoodSize = int.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
 
-                var numAnnealingCycles = int.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+                var numAnnealingCycles = int.Parse(numAnnealingCyclesLine.Replace(NumAnnealingCyclesPrefix, "").Trim());
                 var initialTemperature =
-                    double.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+                    double.Parse(initialTemperatureLine.Replace(InitialTemperaturePrefix, "").Trim());
                 var temperaturePercentageDropPerCycle =
-                    double.Parse(neighbourhoodSizeLine.Replace(NeighbourhoodSizePrefix, "").Trim());
+                    double.Parse(temperaturePercentageDropPerCycleLine.Replace(TemperaturePercentageDropPerCyclePrefix, "").Trim());
 
 
                 return new AnnealingParameters
