@@ -43,7 +43,7 @@ namespace Metaheuristics.Logger
                 file.WriteLine("NEIGHBOURHOOD SIZE:" + parameters.NeighbourhoodSize);
                 file.WriteLine("INITIAL TEMPERATURE:" + parameters.InitialTemperature);
                 file.WriteLine("TEMPERATURE PERCENTAGE DROP PER ANNEALING CYCLE:" + parameters.TemperaturePercentageDropPerCycle);
-                file.WriteLine("NUM_CYCLE;BEST_FITNESS; CURRENT_FITNESS;TEMPERATURE;");
+                file.WriteLine("NUM_CYCLE;GLOBAL_BEST_FITNESS;BEST_FITNESS; CURRENT_FITNESS;TEMPERATURE;");
             }
         }
 
@@ -63,11 +63,11 @@ namespace Metaheuristics.Logger
             }
         }
 
-        public void LogAnnealingTtp1Cycle(int numAnnealingCycles, double bestFitness, double currentFitness, double temperature)
+        public void LogAnnealingTtp1Cycle(int numAnnealingCycles, double globalBestFitness, double bestFitness, double currentFitness, double temperature)
         {
             using (var file = new System.IO.StreamWriter(OutputPath, true))
             {
-                file.WriteLine($"{numAnnealingCycles};{bestFitness};{currentFitness};{temperature}");
+                file.WriteLine($"{numAnnealingCycles};{globalBestFitness};{bestFitness};{currentFitness};{temperature}");
             }
         }
     }

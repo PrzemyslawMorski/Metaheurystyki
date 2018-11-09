@@ -9,10 +9,10 @@ namespace Metaheuristics
     {
         private static void Main()
         {
-            var algorithmType = Environment.GetEnvironmentVariable("METAHEURISTIC_TYPE", EnvironmentVariableTarget.User);
-            var problemSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_PROBLEM_SRC_FILE", EnvironmentVariableTarget.User);
-            var algorithmSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_ALGORITHM_SRC_FILE", EnvironmentVariableTarget.User);
-            var outputFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_LOG_OUTPUT_FILE", EnvironmentVariableTarget.User);
+            var algorithmType = Environment.GetEnvironmentVariable("METAHEURISTIC_TYPE");
+            var problemSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_PROBLEM_SRC_FILE");
+            var algorithmSrcFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_ALGORITHM_SRC_FILE");
+            var outputFilePath = Environment.GetEnvironmentVariable("METAHEURISTICS_LOG_OUTPUT_FILE");
 
             if (problemSrcFilePath == null)
             {
