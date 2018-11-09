@@ -3,6 +3,10 @@ version: '3.7'
 services:
   metaheuristics:
     image: pmorski/metaheuristics
+    env:
+      - METAHEURISTIC_TYPE=GENETIC_TTP1
+      # - METAHEURISTIC_TYPE=TABU_SEARCH_TTP1
+      # - METAHEURISTIC_TYPE=ANNEALING_TTP1
     volumes:
       - "./problemInput.ttp:/app/problemInput.ttp"
       - "./algInput.txt:/app/algInput.txt"

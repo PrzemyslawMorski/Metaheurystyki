@@ -26,6 +26,8 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
                 var bestSolution = InitialSolution(Problem.CityIds);
                 var bestFitness = Problem.Fitness(bestSolution);
 
+                var globalBestFitness = bestFitness;
+
                 while (numAnnealingCycles < Parameters.NumAnnealingCycles)
                 {
                     var neighbourhoodWithFitness = NeighbourhoodWithFitness(bestSolution);
@@ -45,7 +47,13 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
                         bestFitness = currentSolution.Item2;
                     }
 
-                    logger.LogAnnealingTtp1Cycle(numAnnealingCycles, bestFitness, currentSolution.Item2,
+                    if (bestFitness > globalBestFitness)
+                    {
+                        globalBestFitness = bestFitness;
+                    }
+
+                    logger.LogAnnealingTtp1Cycle(numAnnealingCycles, globalBestFitness, bestFitness,
+                        currentSolution.Item2,
                         temperature);
 
                     Console.WriteLine(

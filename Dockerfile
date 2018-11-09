@@ -4,9 +4,9 @@ WORKDIR /metaheuristics
 COPY *.csproj ./
 RUN dotnet restore
 
-ENV METAHEURISTICS_PROBLEM_SRC_FILE=/app/problemInput.ttp
-ENV METAHEURISTICS_ALGORITHM_SRC_FILE=/app/algInput.txt
-ENV METAHEURISTICS_LOG_OUTPUT_FILE=/app/output.csv
+ENV METAHEURISTICS_PROBLEM_SRC_FILE=/metaheuristics/problemInput.ttp
+ENV METAHEURISTICS_ALGORITHM_SRC_FILE=/metaheuristics/algInput.txt
+ENV METAHEURISTICS_LOG_OUTPUT_FILE=/metaheuristics/output.csv
 
 COPY . ./
 RUN dotnet publish -c Release -o out
