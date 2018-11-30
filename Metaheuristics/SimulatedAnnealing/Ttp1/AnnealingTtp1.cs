@@ -13,17 +13,20 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
         }
 
         private Problem.Problem Problem { get; }
-        private AnnealingParameters Parameters { get; }
+        public AnnealingParameters Parameters { get; }
         private Random RandomNumGenerator { get; }
 
-        public void Execute(Logger.Logger logger)
+        public void Execute(Action<int, double, double, double> logAnnealingCycle, Action<List<double>> logOutro,
+            IIndividual initialSolution = null, int startingAnnealingCycleForLogging = 0)
         {
+            var bestFitnesses = new List<double>();
+
             for (var i = 0; i < Parameters.NumAlgorithmIterations; i++)
             {
                 var numAnnealingCycles = 0;
                 var temperature = Parameters.InitialTemperature;
 
-                var bestSolution = InitialSolution(Problem.CityIds);
+                var bestSolution = initialSolution ?? InitialSolution(Problem.CityIds);
                 var bestFitness = Problem.Fitness(bestSolution);
 
                 var globalBestFitness = bestFitness;
@@ -52,9 +55,8 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
                         globalBestFitness = bestFitness;
                     }
 
-                    logger.LogAnnealingTtp1Cycle(numAnnealingCycles, globalBestFitness, bestFitness,
-                        currentSolution.Item2,
-                        temperature);
+                    logAnnealingCycle(numAnnealingCycles + startingAnnealingCycleForLogging, globalBestFitness, bestFitness,
+                        currentSolution.Item2);
 
                     Console.WriteLine(
                         $"SIMULATED ANNEALING iteration: {i} annealing cycle: {numAnnealingCycles} bestFitness: {bestFitness} temperature: {temperature}");
@@ -62,7 +64,11 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
                     numAnnealingCycles++;
                     temperature = NextTemperature(temperature, numAnnealingCycles);
                 }
+
+                bestFitnesses.Add(bestFitness);
             }
+
+            logOutro(bestFitnesses);
         }
 
         private bool ShouldTryLeaveLocalOptima(double bestFitness, double currentSolutionFitness, double temperature)
@@ -118,7 +124,10 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
                 {
                     neighbour = Neighbour(solution);
 
-                    if (neighbour != null) continue;
+                    if (neighbour != null)
+                    {
+                        continue;
+                    }
 
                     Console.WriteLine("Neighbour is null.");
                     return null;
@@ -144,7 +153,10 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
 
             foreach (var neighbourFitness in neighbourhood)
             {
-                if (!(neighbourFitness.Value > bestNeighbourFitness)) continue;
+                if (!(neighbourFitness.Value > bestNeighbourFitness))
+                {
+                    continue;
+                }
 
                 bestNeighbour = neighbourFitness.Key;
                 bestNeighbourFitness = neighbourFitness.Value;
@@ -177,7 +189,10 @@ namespace Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1
             neighbour.RoadTaken[firstRandomSwapIndex] = neighbour.RoadTaken[secondRandomSwapIndex];
             neighbour.RoadTaken[secondRandomSwapIndex] = tmp;
 
-            if (!neighbour.Equals(solution)) return neighbour;
+            if (!neighbour.Equals(solution))
+            {
+                return neighbour;
+            }
 
             Console.WriteLine("Neighbour equals solution.");
             return null;

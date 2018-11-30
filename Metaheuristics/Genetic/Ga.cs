@@ -1,7 +1,7 @@
+using Metaheuristics.GA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Metaheuristics.GA;
 
 namespace Metaheuristics.Metaheuristics.Genetic
 {
@@ -18,16 +18,18 @@ namespace Metaheuristics.Metaheuristics.Genetic
         protected GaParameters Parameters { get; }
         protected Random RandomNumGenerator { get; }
 
-        public abstract void Execute(Logger.Logger logger);
-        protected abstract IList<IIndividual> InitializePopulation(IList<int> cityIds);
+        public abstract List<List<IIndividual>> Execute(Action<int, double, double, double> logGeneration,
+            Action<List<double>> logOutro, int startingGenerationForLogging = 0,
+            List<List<IIndividual>> initialPopulations = null);
+        public abstract List<IIndividual> InitializePopulation();
 
         protected abstract IEnumerable<Tuple<IIndividual, IIndividual>> SelectForCrossing(
-            IList<IIndividual> currentPopulation);
+            List<IIndividual> currentPopulation);
 
         protected abstract Tuple<IIndividual, IIndividual> CrossIndividuals(IIndividual indiv1, IIndividual indiv2);
         protected abstract IIndividual MutateIndividual(IIndividual indiv, bool guaranteedMutation = false);
 
-        protected IList<IIndividual> Evolve(IList<IIndividual> population)
+        protected List<IIndividual> Evolve(List<IIndividual> population)
         {
             var selectedIndividuals = SelectForCrossing(population);
             var crossedIndividuals = Cross(selectedIndividuals);
@@ -35,7 +37,8 @@ namespace Metaheuristics.Metaheuristics.Genetic
             return mutatedIndividuals;
         }
 
-        protected void EvaluatePopulation(IEnumerable<IIndividual> population, int generation, Logger.Logger logger)
+        protected double EvaluatePopulation(IEnumerable<IIndividual> population, int generation,
+            Action<int, double, double, double> logGeneration, int startingGenerationForLogging = 0)
         {
             var populationsFitness = population.Select(individual => Problem.Fitness(individual)).ToArray();
 
@@ -43,7 +46,9 @@ namespace Metaheuristics.Metaheuristics.Genetic
             var avgFitness = populationsFitness.Average();
             var worstFitness = populationsFitness.Min();
 
-            logger.LogGeneticTtp1Generation(generation, bestFitness, avgFitness, worstFitness);
+            logGeneration(generation + startingGenerationForLogging, bestFitness, avgFitness, worstFitness);
+
+            return bestFitness;
         }
 
         protected bool ShouldMutate()
@@ -85,7 +90,7 @@ namespace Metaheuristics.Metaheuristics.Genetic
             return mutatedPopulation;
         }
 
-        protected IIndividual TournamentSelect(IList<IIndividual> population)
+        protected IIndividual TournamentSelect(List<IIndividual> population)
         {
             var bestIndiv = population[RandomNumGenerator.Next(0, population.Count)];
             var bestFitness = Problem.Fitness(bestIndiv);
@@ -101,7 +106,10 @@ namespace Metaheuristics.Metaheuristics.Genetic
 
                 var randomIndivFitness = Problem.Fitness(randomIndiv);
 
-                if (randomIndivFitness <= bestFitness) continue;
+                if (randomIndivFitness <= bestFitness)
+                {
+                    continue;
+                }
 
                 bestIndiv = randomIndiv;
                 bestFitness = randomIndivFitness;

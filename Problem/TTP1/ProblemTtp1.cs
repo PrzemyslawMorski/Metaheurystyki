@@ -1,8 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Metaheuristics.Algorithms;
-using Metaheuristics.Algorithms.Genetic.TTP1;
-using Metaheuristics.GA;
 using Metaheuristics.Metaheuristics;
 
 namespace Metaheuristics.Problem.TTP1
@@ -11,14 +9,17 @@ namespace Metaheuristics.Problem.TTP1
     {
         private List<Item> GreedyBestItems { get; }
         private double GreedyBestItemsProfit { get; }
+        public static int _numFitnessCalls = 0;
 
-        public ProblemTtp1(ProblemStats stats, IReadOnlyCollection<City> cities, List<Item> items) : base(stats, cities, items)
+        public ProblemTtp1(ProblemStats stats, IReadOnlyCollection<City> cities, List<Item> items) : base(stats, cities,
+            items)
         {
             GreedyBestItems = GreedyKnp();
             GreedyBestItemsProfit = ItemsProfit(GreedyBestItems);
         }
 
-        public ProblemTtp1(ProblemStats stats, List<int> cityIds, Dictionary<CityCity, double> interCityDistances, List<Item> items) : base(stats, cityIds, interCityDistances, items)
+        public ProblemTtp1(ProblemStats stats, List<int> cityIds, Dictionary<CityCity, double> interCityDistances,
+            List<Item> items) : base(stats, cityIds, interCityDistances, items)
         {
             GreedyBestItems = GreedyKnp();
             GreedyBestItemsProfit = ItemsProfit(GreedyBestItems);
@@ -26,6 +27,8 @@ namespace Metaheuristics.Problem.TTP1
 
         public override double Fitness(IIndividual indiv, List<Item> itemsTaken = null)
         {
+            _numFitnessCalls++;
+
             if (itemsTaken == null)
             {
                 return GreedyBestItemsProfit - Stats.KnapsackRentingRatio * TravelTime(indiv, GreedyBestItems);
@@ -40,7 +43,8 @@ namespace Metaheuristics.Problem.TTP1
             var currentCapacity = 0;
 
             var itemsSortedDescendingByGreedyCriterium = new List<Item>(Items);
-            itemsSortedDescendingByGreedyCriterium.Sort((c1, c2) => c2.Profit / c2.Weight - c1.Profit / c1.Weight); // descending according to Profit/Weight
+            itemsSortedDescendingByGreedyCriterium.Sort((c1, c2) =>
+                c2.Profit / c2.Weight - c1.Profit / c1.Weight); // descending according to Profit/Weight
 
             foreach (var item in itemsSortedDescendingByGreedyCriterium)
             {

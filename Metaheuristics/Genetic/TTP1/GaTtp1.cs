@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Metaheuristics.GA;
-using Metaheuristics.Metaheuristics;
-using Metaheuristics.Metaheuristics.Genetic;
 
-namespace Metaheuristics.Algorithms.Genetic.TTP1
+namespace Metaheuristics.Metaheuristics.Genetic.TTP1
 {
     public class GaTtp1 : Ga
     {
@@ -13,37 +11,52 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
         {
         }
 
-        public override void Execute(Logger.Logger logger)
+        public override List<List<IIndividual>> Execute(Action<int, double, double, double> logGeneration,
+            Action<List<double>> logOutro, int startingGenerationForLogging = 0, List<List<IIndividual>> initialPopulations = null)
         {
+            var bestFitnesses = new List<double>();
+            var finalPopulations = new List<List<IIndividual>>();
+
             for (var i = 0; i < Parameters.NumAlgorithmIterations; i++)
             {
                 var generation = 0;
-                var population = InitializePopulation(Problem.CityIds);
+                var population = initialPopulations == null ? InitializePopulation() : initialPopulations[i];
 
-                EvaluatePopulation(population, generation, logger);
+                EvaluatePopulation(population, generation, logGeneration, startingGenerationForLogging);
                 generation++;
-                
+
                 while (generation < Parameters.NumGenerations)
                 {
                     Console.WriteLine($"Iteration {i} Generation {generation}");
 
                     population = Evolve(population);
 
-                    EvaluatePopulation(population, generation, logger);
+                    var bestFitness = EvaluatePopulation(population, generation, logGeneration, startingGenerationForLogging);
                     generation++;
+
+                    if (generation == Parameters.NumGenerations - 1)
+                    {
+                        bestFitnesses.Add(bestFitness);
+                    }
                 }
+
+                finalPopulations.Add(population);
             }
+
+            logOutro(bestFitnesses);
+
+            return finalPopulations;
         }
 
-        protected override IList<IIndividual> InitializePopulation(IList<int> cityIds)
+        public override List<IIndividual> InitializePopulation()
         {
             var population = new List<IIndividual>();
-            var numCities = cityIds.Count;
+            var numCities = Problem.CityIds.Count;
             for (var i = 0; i < Parameters.PopulationSize; i++)
             {
                 var randomRoadTaken = new List<int>(numCities);
 
-                var mutableListCityIds = new List<int>(cityIds);
+                var mutableListCityIds = new List<int>(Problem.CityIds);
 
                 for (var j = 0; j < numCities; j++)
                 {
@@ -60,17 +73,12 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
             return population;
         }
 
-        protected override IEnumerable<Tuple<IIndividual, IIndividual>> SelectForCrossing(IList<IIndividual> currentPopulation)
+        protected override IEnumerable<Tuple<IIndividual, IIndividual>> SelectForCrossing(
+            List<IIndividual> currentPopulation)
         {
             var numPairs = currentPopulation.Count / 2;
             var resultingPairs = new List<Tuple<IIndividual, IIndividual>>();
 
-            if (!(currentPopulation is IList<Ttp1Individual> currentPopulationTtp1))
-            {
-                Console.WriteLine("Wrong type of individuals population passed to TTP1. It need TTP2 population.");
-                return null;
-            }
-            
             for (var i = 0; i < numPairs; i++)
             {
                 var firstIndiv = TournamentSelect(currentPopulation) as Ttp1Individual;
@@ -84,7 +92,12 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
 
                 while (secondIndiv.RoadTaken.Equals(firstIndiv.RoadTaken))
                 {
-                    secondIndiv = currentPopulationTtp1[RandomNumGenerator.Next(0, currentPopulation.Count)];
+                    secondIndiv =
+                        currentPopulation[RandomNumGenerator.Next(0, currentPopulation.Count)] as Ttp1Individual;
+                    if (secondIndiv != null) continue;
+
+                    Console.WriteLine("Wrong type of individuals population passed to TTP1. It need TTP2 population.");
+                    return null;
                 }
 
                 resultingPairs.Add(new Tuple<IIndividual, IIndividual>(firstIndiv, secondIndiv));
@@ -102,7 +115,7 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
                 Console.WriteLine("Wrong type of individuals population passed to TTP1. It need TTP2 population.");
                 return null;
             }
-            
+
             var firstRandomSwapIndex = RandomNumGenerator.Next(0, indivTtp1.RoadTaken.Count);
             var secondRandomSwapIndex = RandomNumGenerator.Next(0, indivTtp1.RoadTaken.Count);
 
@@ -133,7 +146,8 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
         {
             var child = parent1.DeepCopy();
 
-            if(!(parent1 is Ttp1Individual parent1Ttp1) || !(parent2 is Ttp1Individual parent2Ttp1) || !(child is Ttp1Individual childTtp1)) return child; 
+            if (!(parent1 is Ttp1Individual parent1Ttp1) || !(parent2 is Ttp1Individual parent2Ttp1) ||
+                !(child is Ttp1Individual childTtp1)) return child;
             if (parent1Ttp1.RoadTaken.Count != parent2Ttp1.RoadTaken.Count) return childTtp1;
 
             var roadLength = parent1Ttp1.RoadTaken.Count;
@@ -143,8 +157,10 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
             var firstChildFirstCutIndex = RandomNumGenerator.Next(0, roadLength);
             var firstChildSecondCutIndex = RandomNumGenerator.Next(firstChildFirstCutIndex, roadLength);
 
-            var cutValuesFromIndiv1 = road1.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex - firstChildFirstCutIndex);
-            var cutValuesFromIndiv2 = road2.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex - firstChildFirstCutIndex)
+            var cutValuesFromIndiv1 =
+                road1.GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex - firstChildFirstCutIndex);
+            var cutValuesFromIndiv2 = road2
+                .GetRange(firstChildFirstCutIndex, firstChildSecondCutIndex - firstChildFirstCutIndex)
                 .Where(valueFromIndiv2 => !cutValuesFromIndiv1.Contains(valueFromIndiv2)).ToList();
 
             foreach (var value in cutValuesFromIndiv2)
@@ -167,7 +183,7 @@ namespace Metaheuristics.Algorithms.Genetic.TTP1
             }
 
             var valuesLeftInIndiv2 = road2.Where(value => !cutValuesFromIndiv1.Contains(value) &&
-                                                                      !cutValuesFromIndiv2.Contains(value)).ToList();
+                                                          !cutValuesFromIndiv2.Contains(value)).ToList();
 
             var indexInIndiv1 = 0;
             foreach (var valueLeftInIndiv2 in valuesLeftInIndiv2)

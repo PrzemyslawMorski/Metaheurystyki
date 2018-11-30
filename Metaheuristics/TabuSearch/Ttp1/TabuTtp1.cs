@@ -17,13 +17,17 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
         private TabuParameters Parameters { get; }
         private Random RandomNumGenerator { get; }
 
-        public void Execute(Logger.Logger logger)
+        public List<IIndividual> Execute(Action<int, double, double> logTabuSearch, Action<List<double>> logOutro,
+            IIndividual initialSolution = null, int startingTabuSearchForLogging = 0)
         {
+            var bestFitnesses = new List<double>();
+            var finalSolutions = new List<IIndividual>();
+
             for (var i = 0; i < Parameters.NumAlgorithmIterations; i++)
             {
                 var numTabuSearches = 0;
 
-                var currentSolution = InitialSolution(Problem.CityIds);
+                var currentSolution = initialSolution ?? InitialSolution(Problem.CityIds);
 
                 var bestSolution = currentSolution.DeepCopy();
                 var bestFitness = Problem.Fitness(bestSolution);
@@ -32,7 +36,6 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                 tabuList.AddFirst(bestSolution);
 
                 var neighbourhoodHasPotentialSolutions = true;
-//                var numConsequentVoidSearches = 0;
 
                 while (numTabuSearches < Parameters.NumTabuSearches && neighbourhoodHasPotentialSolutions)
                 {
@@ -41,7 +44,7 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                     if (neighbourhoodWithFitness == null)
                     {
                         Console.WriteLine("NeighbourhoodWithFitness is null.");
-                        return;
+                        return null;
                     }
 
                     var bestOfNeighbourhood = Best(neighbourhoodWithFitness, tabuList);
@@ -60,7 +63,7 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                         bestFitness = bestOfNeighbourhood.Item2;
                     }
 
-                    logger.LogTabuTtp1Search(numTabuSearches, bestFitness, bestOfNeighbourhood.Item2);
+                    logTabuSearch(numTabuSearches + startingTabuSearchForLogging, bestFitness, bestOfNeighbourhood.Item2);
 
                     tabuList = UpdateTabuList(tabuList, currentSolution);
 
@@ -68,7 +71,13 @@ namespace Metaheuristics.Metaheuristics.TabuSearch.Ttp1
                         $"TABU SEARCH iteration: {i} tabu search: {numTabuSearches} bestFitness: {bestFitness}");
                     numTabuSearches++;
                 }
+
+                bestFitnesses.Add(bestFitness);
+                finalSolutions.Add(bestSolution);
             }
+            
+            logOutro(bestFitnesses);
+            return finalSolutions;
         }
 
         private LinkedList<IIndividual> UpdateTabuList(LinkedList<IIndividual> tabuList,

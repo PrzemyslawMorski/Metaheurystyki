@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
 using Metaheuristics.GA;
 using Metaheuristics.Metaheuristics.SimulatedAnnealing.Ttp1;
 using Metaheuristics.Metaheuristics.TabuSearch.Ttp1;
 using Metaheuristics.Problem;
 using Metaheuristics.Problem.TTP1;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Metaheuristics.Loader
 {
@@ -146,13 +145,22 @@ namespace Metaheuristics.Loader
         private static Problem.Problem ExtractProblem(List<string> srcFileLines)
         {
             var problemStats = ExtractProblemStats(srcFileLines);
-            if (problemStats == null) return null;
+            if (problemStats == null)
+            {
+                return null;
+            }
 
             var cities = ExtractCities(srcFileLines);
-            if (cities == null) return null;
+            if (cities == null)
+            {
+                return null;
+            }
 
             var items = ExtractItems(srcFileLines, cities);
-            if (items == null) return null;
+            if (items == null)
+            {
+                return null;
+            }
 
             return new ProblemTtp1(problemStats, cities, items);
         }
@@ -394,7 +402,8 @@ namespace Metaheuristics.Loader
                 var tabuListSizeLine = srcFileLines.Find(line => line.StartsWith(TabuListSizePrefix));
 
                 if (neighbourhoodSizeLine == null ||
-                    tabuListSizeLine == null)
+                    tabuListSizeLine == null ||
+                    numTabuSearchesLine == null)
                 {
                     Console.WriteLine($"Tabu ttp1 configuration file format error - first 4 lines need to be: " +
                                       $"\n {NumAlgorithmIterationsPrefix} INT" +
