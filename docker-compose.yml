@@ -8,6 +8,6 @@ services:
       # - METAHEURISTIC_TYPE=TABU_SEARCH_TTP1
       # - METAHEURISTIC_TYPE=ANNEALING_TTP1
     volumes:
-      - "./problemInput.ttp:/app/problemInput.ttp"
-      - "./algInput.txt:/app/algInput.txt"
-      - "./output.csv:/app/output.csv"
+      - "./problemInput.ttp:/metaheuristics/data/problemInput.ttp"
+      - "./algInput.txt:/metaheuristics/data/algInput.txt"
+      - "./output.csv:/metaheuristics/data/output.csv"
